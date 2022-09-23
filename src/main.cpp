@@ -18,6 +18,15 @@
 #include <PubSubClient.h>
 #include <Wire.h>
 #include "Adafruit_TCS34725.h"
+#include <FastLED.h>
+
+
+//for lights
+#define NUM_LEDS_PER_WINDOW 20
+#define DATA_PIN_WALL_1 5
+CRGB leds_windows[1][NUM_LEDS_PER_WINDOW];
+
+
 
 
 
@@ -36,10 +45,24 @@ byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
 IPAddress ip(192,168,1,5);
 IPAddress server(192, 168, 1, 112);
 
+void ledanimate(int onoff);
+
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
+  String topicstr(topic);
+  if (topicstr.equals("windowon")) {
+      ledanimate(1);
+      Serial.println("windowon msg");
+  }
+
+  if (topicstr.equals("windowoff")) {
+      ledanimate(0);
+      
+      Serial.println("windowoff msg");
+  }
+  
   for (int i=0;i<length;i++) {
     Serial.print((char)payload[i]);
   }
@@ -60,6 +83,9 @@ void reconnect() {
       client.publish("outTopic","hello world");
       // ... and resubscribe
       client.subscribe("inTopic");
+            client.subscribe("windowon");
+      client.subscribe("windowoff");
+
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -111,12 +137,12 @@ void laser_init() {
 }
 
 void laser_trigger() {
-    client.publish("avr-building","shot-fired".);
+    client.publish("avr-building","shot-fired");
 
     Serial.print("FLASH LED"); Serial.println(" ");
 
     digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(1000);               // wait for a second
+    //delay(1000);               // wait for a second
     digitalWrite(led, LOW); 
 
 }
@@ -160,9 +186,27 @@ void setup()
   Ethernet.begin(mac, ip);
   // Allow the hardware to sort itself out
   delay(1500);
+
+  //leds
+  FastLED.addLeds<WS2812, DATA_PIN_WALL_1, GRB>(leds_windows[0], NUM_LEDS_PER_WINDOW);
+
+
   laser_init();
 
+}
 
+void ledanimate(int onoff) {
+  if (onoff) {
+   for (int i=0;i<NUM_LEDS_PER_WINDOW;i++) {
+    leds_windows[0][i] =  CRGB::ForestGreen;
+   }
+  } else {
+   for (int i=0;i<NUM_LEDS_PER_WINDOW;i++) {
+    leds_windows[0][i] =  CRGB::Black;
+   }
+  } 
+  
+  FastLED.show();
 }
 
 void loop()
