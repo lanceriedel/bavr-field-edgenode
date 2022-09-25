@@ -19,7 +19,8 @@ private:
     uint32_t total_r = 0;
     uint32_t avg_k = 0;
     uint32_t avg_r=0;
-    const int32_t MAX_TEMP_DIFF=600;
+    uint32_t last_unfired_k = 0;
+    const int32_t MAX_TEMP_DIFF=400;
     PubSubClient* client;
 
 };

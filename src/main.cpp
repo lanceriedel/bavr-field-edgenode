@@ -18,6 +18,7 @@
 #include <PubSubClient.h>
 #include <Wire.h>
 #include <ArduinoUniqueID.h>
+#include "PrintToString.hpp"
 
 #include "LaserDetect.hpp"
 #include "LEDAnimations.hpp"
@@ -36,7 +37,7 @@ LEDAnimations led_animations;
 
 // Update these with values suitable for your network.
 byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
-IPAddress ip(192,168,1,5);
+//IPAddress ip(192,168,1,5);
 IPAddress server(192, 168, 1, 112);
 
 
@@ -91,25 +92,76 @@ void reconnect() {
   }
 }
 
+char * t(unsigned long n, uint8_t base) {
+
+  char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
+  char *str = &buf[sizeof(buf) - 1];
+
+  *str = '\0';
+
+  // prevent crash if called with base == 1
+  if (base < 2) base = 10;
+
+  do {
+    char c = n % base;
+    n /= base;
+
+    *--str = c < 10 ? c + '0' : c + 'A' - 10;
+  } while(n);
+
+  return (str);
+
+}
+
 void setup()
 {
   Serial.begin(9600);
   char outputBuffer[10];
   uint8_t i = 0;
+  PrintToString pstr;
+  
   for (; i < UniqueIDsize; i++)
   {
-      outputBuffer[i] = (char)UniqueID[i];
+    Serial.println(UniqueID[i], HEX);
+    pstr.print(UniqueID[i], HEX);
+      outputBuffer[i] = t(UniqueID[i], HEX);
   }
-  i;;
+  i++;;
   outputBuffer[i] = 0;
-  unique_id = String(outputBuffer);
+  unique_id = String(*pstr.results());
   Serial.print("BOARD_ID:"); Serial.println(unique_id);
-
 
   client.setServer(server, 1883);
   client.setCallback(callback);
 
-  Ethernet.begin(mac, ip);
+  if (Ethernet.begin(mac) == 0) {
+
+    Serial.println("Failed to configure Ethernet using DHCP");
+
+    // Check for Ethernet hardware present
+
+    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+      while (true) {
+        delay(1); // do nothing, no point running without Ethernet hardware
+      }
+    }
+
+    if (Ethernet.linkStatus() == LinkOFF) {
+      Serial.println("Ethernet cable is not connected.");
+    }
+
+    // initialize the Ethernet device not using DHCP:
+    //Ethernet.begin(mac, ip);
+    Serial.println("Could not obtain IP Address.");
+    exit(1);
+  }
+
+  // print your local IP address:
+  Serial.print("My IP address: ");
+  Serial.println(Ethernet.localIP());
+
+
   // Allow the hardware to sort itself out
   delay(1500);
 

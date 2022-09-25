@@ -10,6 +10,7 @@ LaserDetect::LaserDetect(PubSubClient& client)
 void LaserDetect::laser_init() {
   Serial.println(" ");
   int i = avg_values_countdown;
+  int numcounted = 0;
   while (i) {
     uint16_t r, g, b, c, colorTemp;
     int32_t lux;
@@ -25,7 +26,10 @@ void LaserDetect::laser_init() {
     Serial.print("G: "); Serial.print(g, DEC); Serial.print(" -");
     Serial.print("B: "); Serial.print(b, DEC); Serial.println(" -");
 
-  
+    if (colorTemp <1000 || colorTemp > 7000) {
+      Serial.println("Calibrating...OUT OF BOUNDS-  SKIPPING "); Serial.println(" ");
+      continue;
+    } 
     total_k+=colorTemp;
     total_r+=r;
     delay(500);
@@ -43,6 +47,7 @@ void LaserDetect::laser_init() {
     digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(4000);               // wait for a second
     digitalWrite(led, LOW); 
+    last_unfired_k = avg_k;
   }
 
 
@@ -68,22 +73,27 @@ void LaserDetect::laser_detect() {
   colorTemp = tcs.calculateColorTemperature_dn40(r, g, b, c);
   lux = tcs.calculateLux(r, g, b);
 
-  Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.print(" K - ");
-  Serial.print("C: "); Serial.print(c, DEC); Serial.print(" - ");
-  Serial.print("LUx: "); Serial.print(lux); Serial.print(" - ");
-  Serial.print("R: "); Serial.print(r, DEC); Serial.print(" -");
-  Serial.print("G: "); Serial.print(g, DEC); Serial.print(" -");
-  Serial.print("B: "); Serial.print(b, DEC); Serial.print(" -");
+  //Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.print(" K - ");
+  //Serial.print("C: "); Serial.print(c, DEC); Serial.print(" - ");
+ // Serial.print("LUx: "); Serial.print(lux); Serial.print(" - ");
+ // Serial.print("R: "); Serial.print(r, DEC); Serial.print(" -");
+ // Serial.print("G: "); Serial.print(g, DEC); Serial.print(" -");
+  //Serial.print("B: "); Serial.print(b, DEC); Serial.print(" -");
 
 
   int32_t dff_temp = avg_k-colorTemp;
   if (dff_temp<0) dff_temp = dff_temp * -1;
   if (dff_temp>100000) dff_temp = 0;
   //if ((abs(avg_r-r))>100) {
-    Serial.print("DIFF K: "); Serial.print(dff_temp); Serial.println(" ");
 
   if (dff_temp>MAX_TEMP_DIFF) {
+    Serial.print("DIFF K: "); Serial.print(dff_temp); Serial.println(" ");
+    Serial.print("FIRED K: "); Serial.print(colorTemp); Serial.print(" LAST UNFIRED K: "); Serial.println(last_unfired_k); Serial.println(" ");
+
+
     laser_trigger();
+  } else {
+    last_unfired_k = colorTemp;
   }
 
 }
