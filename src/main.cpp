@@ -46,7 +46,7 @@ BAVRFieldController* controller;
 
 //Handle all of the MQTT Messages -- they are being handed off to the controller to do the work
 void callback(char* topic, byte* payload, unsigned int length) {
-  //controller.callback(topic, payload,length);
+  controller->callback(topic, payload,length);
 }
 
 void ethernet_setup() {
@@ -74,35 +74,6 @@ void ethernet_setup() {
   }
 
 
-}
-
-void reconnect() {
-  // Loop until we're reconnected
-  while (!client.connected()) {
-    Serial.print(F("Attempting MQTT connection..."));
-
-    // Attempt to connect
-    if (client.connect("node-avrfield2")) {
-      Serial.println("connected");
-      // Once connected, publish an announcement...
-      String hello = String("hello world:" + unique_id);
-
-      client.publish("outTopic", hello.c_str());
-      // ... and resubscribe
-      client.subscribe("inTopic");
-      client.subscribe("windowon");
-      client.subscribe("windowoff");
-      delay(1000);
-
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-    }
-        Serial.print("Finished MQTT connection...");
-
-  }
 }
 
 void setup()
@@ -159,12 +130,6 @@ void setup()
 
 void loop()
 {
-  //tried moving this to controller and it got corrupted messages????
-  if (!client.connected()) {
-    reconnect();
-  } 
-  Serial.println(".");
-  //controller loop
-  client.loop();
+  //Serial.println(".");
   controller->loop();
 }

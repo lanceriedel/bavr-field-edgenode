@@ -41,11 +41,15 @@ void BAVRFieldController::event_trigger(String event) {
 ///Everybody do a loop   -- make sure no one is hogging the one thread please!!
 void BAVRFieldController::loop() {
   
-  //field_comms->loop();
+  field_comms->loop();
   boolean trigger = laser_detect->laser_detect();
   if (trigger) {
-   // Serial.println("Controller: event triggered");
     event_trigger("laser");
   }
-//  led_animations->ledanimate();
+  led_animations->ledanimate();
 }
+
+boolean BAVRFieldController::setup(String unique_id) {
+
+}
+
