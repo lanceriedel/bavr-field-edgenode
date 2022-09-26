@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <Wire.h>
 
-LaserDetect::LaserDetect(PubSubClient& client)
+LaserDetect::LaserDetect(BAVRFieldComms& client)
 {
    this->client = &client;
 }
@@ -49,7 +49,7 @@ void LaserDetect::laser_init() {
 }
 
 void LaserDetect::laser_trigger() {
-    client->publish("avr-building","shot-fired");
+    client->publish("avr-building","shot-fired");zl
 
     Serial.print("FLASH LED"); Serial.println(" ");
 

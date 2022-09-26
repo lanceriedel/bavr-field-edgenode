@@ -1,12 +1,12 @@
 #include "Adafruit_TCS34725.h"
-#include <PubSubClient.h>
+#include "BAVRFieldComms.hpp"
 
 
 
 class LaserDetect
 {
 public:
-    LaserDetect(PubSubClient& client);
+    LaserDetect(BAVRFieldComms& client);
     void laser_init();
     void laser_trigger();
     void laser_detect();
@@ -20,6 +20,6 @@ private:
     uint32_t avg_k = 0;
     uint32_t avg_r=0;
     const int32_t MAX_TEMP_DIFF=600;
-    PubSubClient* client;
+    BAVRFieldComms* client;
 
 };
