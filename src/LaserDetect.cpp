@@ -2,9 +2,8 @@
 #include <SPI.h>
 #include <Wire.h>
 
-LaserDetect::LaserDetect(BAVRFieldComms& client)
+LaserDetect::LaserDetect()
 {
-   this->client = &client;
 }
 
 void LaserDetect::laser_init() {
@@ -44,20 +43,31 @@ void LaserDetect::laser_init() {
     delay(4000);               // wait for a second
     digitalWrite(led, LOW); 
   }
+}
 
+//Too keep things clean, we are going to check this on the controller loop and clear
+boolean LaserDetect::triggered() {
+   if (hastriggered) {
+    hastriggered = false;
+    return true;
+   } else
+   return false;
 
 }
+
 
 void LaserDetect::laser_trigger() {
-    client->publish("avr-building","shot-fired");zl
+    hastriggered = true;
+    //client->publish("avr-building","shot-fired");
 
-    Serial.print("FLASH LED"); Serial.println(" ");
+    //Serial.print("FLASH LED"); Serial.println(" ");
 
-    digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
+    //digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
     //delay(1000);               // wait for a second DONT WANT TO EVER WAIT -- BAD
-    digitalWrite(led, LOW); 
+   // digitalWrite(led, LOW); 
 
 }
+
 void LaserDetect::laser_detect() {
   uint16_t r, g, b, c, colorTemp;
   int32_t lux;

@@ -1,3 +1,6 @@
+#ifndef BAVRFieldComms_cpp
+#define BAVRFieldComms_cpp
+
 #include "BAVRFieldComms.hpp"
 #include <SPI.h>
 #include <Wire.h>
@@ -6,32 +9,9 @@ BAVRFieldComms::BAVRFieldComms()
 {
 }
 
-void BAVRFieldComms::callback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
-  String topicstr(topic);
-  if (topicstr.equals("windowon")) {
-      led_animations.ledanimate(1);
-      Serial.println("windowon msg");
-  }
-
-  if (topicstr.equals("windowoff")) {
-      led_animations.ledanimate(0);
-      
-      Serial.println("windowoff msg");
-  }
-  
-  for (int i=0;i<length;i++) {
-    Serial.print((char)payload[i]);
-  }
-  Serial.println();
-}
-
 boolean BAVRFieldComms::setup(String unique_id, PubSubClient& client) {
     this->client = &client;
-    
-
+    return true;
 }
 
 boolean BAVRFieldComms::connected() {
@@ -67,6 +47,9 @@ void BAVRFieldComms::reconnect() {
 boolean BAVRFieldComms::loop() {
     client->loop();
 }
+
+#endif
+
 
 
 

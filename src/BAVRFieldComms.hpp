@@ -1,3 +1,6 @@
+#ifndef BAVRFieldComms_h
+#define BAVRFieldComms_h
+
 #include "Adafruit_TCS34725.h"
 #include <Ethernet.h>
 #include <PubSubClient.h>
@@ -18,3 +21,5 @@ private:
     String unique_id;
 
 };
+
+#endif
