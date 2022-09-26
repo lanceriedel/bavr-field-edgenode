@@ -34,7 +34,7 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
 void BAVRFieldController::event_trigger(String event) {
     if (event.equals("laser")) {
       Serial.println(F("Controller: LASER event triggered"));
-      field_comms->message("avr-building","laser-hit");
+      field_comms->message("avr-building/1/laser-hit","1");
     }
 }
 
