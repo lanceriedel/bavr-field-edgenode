@@ -14,6 +14,10 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
   Serial.print((topic));
   Serial.print(F("] "));
   String topicstr(topic);
+
+  if (topicstr.startsWith("led")) {
+    
+  }
   if (topicstr.equals("windowon")) {
       led_animations->ledanimate(1);
       Serial.println("windowon msg");
