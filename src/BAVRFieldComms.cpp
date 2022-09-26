@@ -5,47 +5,30 @@
 #include <SPI.h>
 #include <Wire.h>
 
-BAVRFieldComms::BAVRFieldComms()
+BAVRFieldComms::BAVRFieldComms( )
 {
+
+
 }
 
-boolean BAVRFieldComms::setup(String unique_id, PubSubClient& client) {
-    this->client = &client;
+boolean BAVRFieldComms::setup(String unique_id, PubSubClient* client) {
+    this->client = client;
     return true;
+    
 }
 
 boolean BAVRFieldComms::connected() {
-    return client->connected();
 }
 
-void BAVRFieldComms::reconnect() {
-  // Loop until we're reconnected
-  while (!client->connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
-    if (client->connect("arduinoClient")) {
-      Serial.println("connected");
-      // Once connected, publish an announcement...
-      String hello = String("hello world:" + unique_id);
 
-      client->publish("outTopic", hello.c_str());
-      // ... and resubscribe
-      client->subscribe("inTopic");
-      client->subscribe("windowon");
-      client->subscribe("windowoff");
+boolean BAVRFieldComms::message(String topic, String messagestr) {
 
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client->state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
-    }
-  }
+  client->publish(topic.c_str(), messagestr.c_str());
+  Serial.print("Publish topic:"); Serial.print(topic); Serial.print(" message:"); Serial.println(messagestr);
 }
 
 boolean BAVRFieldComms::loop() {
-    client->loop();
+    Serial.println("comms loop");
 }
 
 #endif

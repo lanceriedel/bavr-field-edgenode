@@ -17,7 +17,6 @@
 #include <Ethernet.h>
 #include <PubSubClient.h>
 #include <Wire.h>
-#include <ArduinoUniqueID.h>
 
 #include "LaserDetect.hpp"
 #include "LEDAnimations.hpp"
@@ -39,16 +38,15 @@ LEDAnimations led_animations;
 
 // Update these with values suitable for your network.
 byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
-IPAddress ip(192,168,1,5);
 IPAddress server(192, 168, 1, 112);
 
 //Where the real work gets handed out
-BAVRFieldController controller(led_animations, laser_detect, field_comms);
+BAVRFieldController* controller;
 
 
 //Handle all of the MQTT Messages -- they are being handed off to the controller to do the work
 void callback(char* topic, byte* payload, unsigned int length) {
-  controller.callback(topic, payload,length);
+  //controller.callback(topic, payload,length);
 }
 
 void ethernet_setup() {
@@ -75,44 +73,98 @@ void ethernet_setup() {
     exit(1);
   }
 
-  // print your local IP address:
-  Serial.print("My IP address: ");
-  Serial.println(Ethernet.localIP());
 
+}
+
+void reconnect() {
+  // Loop until we're reconnected
+  while (!client.connected()) {
+    Serial.print(F("Attempting MQTT connection..."));
+
+    // Attempt to connect
+    if (client.connect("node-avrfield2")) {
+      Serial.println("connected");
+      // Once connected, publish an announcement...
+      String hello = String("hello world:" + unique_id);
+
+      client.publish("outTopic", hello.c_str());
+      // ... and resubscribe
+      client.subscribe("inTopic");
+      client.subscribe("windowon");
+      client.subscribe("windowoff");
+      delay(1000);
+
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying
+    }
+        Serial.print("Finished MQTT connection...");
+
+  }
 }
 
 void setup()
 {
   Serial.begin(9600);
-  char outputBuffer[10];
-  uint8_t i = 0;
-  for (; i < UniqueIDsize; i++)
-  {
-      outputBuffer[i] = (char)UniqueID[i];
-  }
-  i;;
-  outputBuffer[i] = 0;
-  unique_id = String(outputBuffer);
-  Serial.print("BOARD_ID:"); Serial.println(unique_id);
+  // char outputBuffer[10];
+  // uint8_t i = 0;
+  // for (; i < UniqueIDsize; i++)
+  // {
+  //     outputBuffer[i] = (char)UniqueID[i];
+  // }
+  
+  // outputBuffer[i] = 0;
+  // unique_id = String(outputBuffer);
+  unique_id = "TBD";
+  Serial.print(F("BOARD_ID:")); Serial.println((unique_id));
   // Ethernet setup
-  ethernet_setup();
+  delay(500);
+
+   ethernet_setup();
+  // print your local IP address:
+  Serial.print(F("My IP address: "));
+  Serial.println(Ethernet.localIP());
   // Allow the hardware to sort itself out
   delay(1500);
 
+  Serial.println(F("Pubsub setup..."));
   //pubsub init
   client.setServer(server, 1883);
   client.setCallback(callback);
+  delay(1500);
+
+  
+  //reconnect();
 
   //leds
+  Serial.println(F("LED Animations setup..."));
   led_animations.setup();
   //comms setup
-  field_comms.setup(unique_id, client);
+  Serial.println(F("Comms setup..."));
+  //field_comms.setup(unique_id);
   //laser
+  Serial.println(F("Laser Detector setup..."));
+
   laser_detect.laser_init();
+
+  Serial.println(F("Setup Done begin loops..."));
+
+  controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms);
+  field_comms.setup("TBD", &client);
+  delay(1500);
 
 }
 
 void loop()
 {
-  controller.loop();
+  //tried moving this to controller and it got corrupted messages????
+  if (!client.connected()) {
+    reconnect();
+  } 
+  Serial.println(".");
+  //controller loop
+  client.loop();
+  controller->loop();
 }
