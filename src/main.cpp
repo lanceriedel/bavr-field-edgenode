@@ -16,6 +16,7 @@ NOTE -  no delays should be anywhere in the loops -- will work to make sure that
 #include "LEDAnimations.hpp"
 #include "BAVRFieldComms.hpp"
 #include "BAVRFieldController.hpp"
+#include "ArduinoUniqueID.h"
 
 
 //for messaging
@@ -73,16 +74,15 @@ void ethernet_setup() {
 void setup()
 {
   Serial.begin(9600);
-  // char outputBuffer[10];
-  // uint8_t i = 0;
-  // for (; i < UniqueIDsize; i++)
-  // {
-  //     outputBuffer[i] = (char)UniqueID[i];
-  // }
+  String idstr;
+  uint8_t i = 0;
+  for (; i < UniqueIDsize; i++)
+  {
+        idstr += String(UniqueID[i], HEX);
+  }
   
-  // outputBuffer[i] = 0;
-  // unique_id = String(outputBuffer);
-  unique_id = "TBD";
+  unique_id = idstr;
+  //unique_id = "TBD";
   Serial.print(F("BOARD_ID:")); Serial.println((unique_id));
   // Ethernet setup
   delay(500);
