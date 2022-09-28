@@ -129,7 +129,7 @@ void setup()
   Serial.println(F("Setup Done begin loops..."));
 
   controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms, &trough_detect);
-  controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms);
+  //controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms);
   delay(1500);
   controller->setup(unique_id);
 

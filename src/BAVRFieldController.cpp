@@ -91,11 +91,14 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
 }
 
 void BAVRFieldController::event_trigger(const char* event) {
+
+  //TODO: 
+  //Create a backoff and drop events if something is flooding the system
   if(strcmp(event, "laser") ==  0) {
       this->laser_hit_message(1);
     }
-    else if (event.equals("trough")) {
-      Serial.println(F("Controller: Trough event triggered"));
+  if(strcmp(event, "trough") ==  0) {
+      //Serial.println(F("Controller: Trough event triggered"));
       //field_comms->message("avr-building/1/trough", String(trough_detect->bag_num())); //todo: update to match schema
     }
 
