@@ -2,11 +2,12 @@
 #include <ArduinoJson.h>
 
 
-BAVRFieldController::BAVRFieldController(LEDAnimations* led_animations, LaserDetect* laser_detect, BAVRFieldComms* field_comms)
+BAVRFieldController::BAVRFieldController(LEDAnimations* led_animations, LaserDetect* laser_detect, BAVRFieldComms* field_comms, TroughDetect* trough_detect)
 {
     this->laser_detect = laser_detect;
     this->led_animations = led_animations;
     this->field_comms = field_comms;
+    this->trough_detect = trough_detect;
 }
 
 void BAVRFieldController::laser_hit_message(int hits) {
@@ -93,6 +94,10 @@ void BAVRFieldController::event_trigger(const char* event) {
   if(strcmp(event, "laser") ==  0) {
       this->laser_hit_message(1);
     }
+    else if (event.equals("trough")) {
+      Serial.println(F("Controller: Trough event triggered"));
+      //field_comms->message("avr-building/1/trough", String(trough_detect->bag_num())); //todo: update to match schema
+    }
 
 }
 
@@ -105,6 +110,10 @@ void BAVRFieldController::loop() {
     event_trigger("laser");
   }
   led_animations->ledanimate();
+
+  if(trough_detect->trough_detect())
+    event_trigger("trough");
+
 }
 
 boolean BAVRFieldController::setup(const char* unique_id) {
