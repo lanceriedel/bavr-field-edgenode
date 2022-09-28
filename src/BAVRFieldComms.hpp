@@ -8,16 +8,17 @@ class BAVRFieldComms
 {
 public:
     BAVRFieldComms();
-    bool setup(String unique_id, PubSubClient* client);
+    bool setup(const char* unique_id, PubSubClient* client);
     void reconnect();
     bool connected();
     bool loop();
-    bool message(String topic, String messagestr);
+    void subscribe(const char* topic);
+    bool message(const char* topic, const char* messagestr);
     void callback(char* topic, byte* payload, unsigned int length);
 
 
 private:
-    String unique_id;
+    const char* unique_id;
     PubSubClient* client;
 
 };

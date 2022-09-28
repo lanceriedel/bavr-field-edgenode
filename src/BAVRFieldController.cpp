@@ -1,4 +1,6 @@
 #include "BAVRFieldController.hpp"
+//#include <ArduinoJson.h>
+
 
 BAVRFieldController::BAVRFieldController(LEDAnimations* led_animations, LaserDetect* laser_detect, BAVRFieldComms* field_comms)
 {
@@ -14,10 +16,24 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
   Serial.print((topic));
   Serial.print(F("] "));
   String topicstr(topic);
+  char buffer[128];
+
+  if (length>0) {
+    strncpy(buffer, (const char*) payload, length);
+    buffer[length] = 0;
+  }
 
   if (topicstr.startsWith("led")) {
     
   }
+
+  if (topicstr.startsWith("nodered/initialization")) {
+        nodeID = String(buffer);
+        Serial.print(F("Node id initialized: ")); Serial.println(nodeID);
+  }
+
+
+
   if (topicstr.equals("windowon")) {
       led_animations->ledanimate(1);
       Serial.println("windowon msg");
@@ -28,10 +44,9 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
       
       Serial.println("windowoff msg");
   }
+  //make this better
   
-  for (int i=0;i<length;i++) {
-    Serial.print((char)payload[i]);
-  }
+ Serial.println(buffer);
   Serial.println();
 }
 
@@ -53,7 +68,28 @@ void BAVRFieldController::loop() {
   led_animations->ledanimate();
 }
 
-boolean BAVRFieldController::setup(String unique_id) {
+boolean BAVRFieldController::setup(const char* unique_id) {
+  Serial.println(F("Controller setup..."));
+
+  //Listen for return initialization call
+  char buff2[128];
+  memset(buff2, 0, 128);
+
+  strcpy(buff2,"nodered/initialization/");
+  strcat(buff2,unique_id);
+  field_comms->subscribe(buff2);
+
+  //Hand build JSON for now
+  //Send request for initialization params (mostly node id)
+  char buffer[128];
+  memset(buffer, 0, 128);
+
+  strcpy(buffer,"{\"uuid\":\"");
+  strcat(buffer,unique_id);
+  strcat(buffer,"\", \"timestamp\":10000000}");
+
+  field_comms->message("edgenode/initialization",(const char*)buffer);
+  return true;
 
 }
 

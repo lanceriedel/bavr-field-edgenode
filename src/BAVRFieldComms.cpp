@@ -11,6 +11,10 @@ BAVRFieldComms::BAVRFieldComms( )
 
 }
 
+void BAVRFieldComms::subscribe(const char* topic) {
+      client->subscribe(topic);
+}
+
 void BAVRFieldComms::reconnect() {
   // Loop until we're reconnected
   while (!client->connected()) {
@@ -20,11 +24,11 @@ void BAVRFieldComms::reconnect() {
     if (client->connect("node-avrfield2")) {
       Serial.println("connected");
       // Once connected, publish an announcement...
-      String hello = String("hello world:" + unique_id);
+      //String hello = String("hello world:" + unique_id);
 
-      client->publish("outTopic", hello.c_str());
+     // client->publish("outTopic", hello.c_str());
       // ... and resubscribe
-      client->subscribe("inTopic");
+      client->subscribe("nodered/initialization/#");
       client->subscribe("windowon");
       client->subscribe("windowoff");
       delay(1000);
@@ -34,6 +38,8 @@ void BAVRFieldComms::reconnect() {
       Serial.print(client->state());
       Serial.println(" try again in 5 seconds");
       // Wait 5 seconds before retrying
+      delay(5000);
+
     }
         Serial.print("Finished MQTT connection...");
 
@@ -41,8 +47,13 @@ void BAVRFieldComms::reconnect() {
 }
 
 
-boolean BAVRFieldComms::setup(String unique_id, PubSubClient* client) {
+boolean BAVRFieldComms::setup(const char* unique_id, PubSubClient* client) {
     this->client = client;
+     if (!client->connected()) {
+      reconnect();
+      delay(1150);
+    } 
+    this->unique_id = unique_id;
     return true;
     
 }
@@ -52,10 +63,11 @@ boolean BAVRFieldComms::connected() {
 }
 
 
-boolean BAVRFieldComms::message(String topic, String messagestr) {
+boolean BAVRFieldComms::message(const char* topic, const char* messagestr) {
+  //Serial.println(F("Publish topic:")); Serial.println(topic); Serial.println(F(" message:")); Serial.println(messagestr);
 
-  client->publish(topic.c_str(), messagestr.c_str());
-  Serial.print("Publish topic:"); Serial.print(topic); Serial.print(" message:"); Serial.println(messagestr);
+  client->publish(topic, messagestr);
+  return true;
 }
 
 boolean BAVRFieldComms::loop() {
