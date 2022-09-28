@@ -12,6 +12,7 @@ NOTE -  no delays should be anywhere in the loops -- will work to make sure that
 #include <PubSubClient.h>
 #include <Wire.h>
 
+#include "BallDetect.hpp"
 #include "TroughDetect.hpp"
 #include "LaserDetect.hpp"
 #include "LEDAnimations.hpp"
@@ -31,6 +32,7 @@ LaserDetect laser_detect;
 LEDAnimations led_animations;
 
 TroughDetect trough_detect;
+BallDetect ball_detect;
 
 // Update these with values suitable for your network.
 byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
@@ -126,9 +128,19 @@ void setup()
 
   laser_detect.laser_init();
 
+  Serial.println(F("Trough setup..."));
+
+  trough_detect.trough_init();
+
+  Serial.println(F("Ball Detector setup..."));
+
+  ball_detect.ball_init();
+
+
   Serial.println(F("Setup Done begin loops..."));
 
-  controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms, &trough_detect);
+  controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms, &trough_detect, &ball_detect);
+  // controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms, &trough_detect);
   //controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms);
   delay(1500);
   controller->setup(unique_id);

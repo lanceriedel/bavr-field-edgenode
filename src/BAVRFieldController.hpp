@@ -5,11 +5,12 @@
 #include "LEDAnimations.hpp"
 #include "LaserDetect.hpp"
 #include "TroughDetect.hpp"
+#include "BallDetect.hpp"
 
 class BAVRFieldController
 {
 public:
-    BAVRFieldController(LEDAnimations* led_animations, LaserDetect* laser_detect, BAVRFieldComms* field_comms, TroughDetect* trough_detect);
+    BAVRFieldController(LEDAnimations* led_animations, LaserDetect* laser_detect, BAVRFieldComms* field_comms, TroughDetect* trough_detect, BallDetect* ball_detect);
     boolean setup(const char* unique_id);
     void loop();
     void callback(char* topic, byte* payload, unsigned int length);
@@ -23,6 +24,7 @@ private:
     LEDAnimations* led_animations;
     LaserDetect* laser_detect;
     TroughDetect* trough_detect;
+    BallDetect* ball_detect;
     char node_id[128];
 };
 
