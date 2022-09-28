@@ -95,7 +95,7 @@ void setup()
   snprintf(b, 8, "%lX",(long)EEPROM.read(3));
   strcat(unique_id, b);
 
- 
+  Serial.print("Board ID Comes from https://github.com/lanceriedel/burn-uuid-eeprom");
   Serial.print(F("BOARD_ID:")); Serial.println((unique_id));
   // Ethernet setup
   delay(500);
@@ -114,8 +114,6 @@ void setup()
   client.setBufferSize(512);
   delay(1500);
 
-  
-  //reconnect();
 
   //leds
   Serial.println(F("LED Animations setup..."));
@@ -140,8 +138,7 @@ void setup()
   Serial.println(F("Setup Done begin loops..."));
 
   controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms, &trough_detect, &ball_detect);
-  // controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms, &trough_detect);
-  //controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms);
+
   delay(1500);
   controller->setup(unique_id);
 

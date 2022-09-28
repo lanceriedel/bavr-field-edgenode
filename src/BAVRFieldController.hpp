@@ -16,6 +16,7 @@ public:
     void callback(char* topic, byte* payload, unsigned int length);
     void event_trigger(const char* event);
     void laser_hit_message(int hit);
+    void subscribe_all();
 
 
 
@@ -26,6 +27,8 @@ private:
     TroughDetect* trough_detect;
     BallDetect* ball_detect;
     char node_id[128];
+
+    uint16_t current_fire_score = 0;
 };
 
 #endif

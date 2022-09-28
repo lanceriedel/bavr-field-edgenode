@@ -12,20 +12,6 @@ BAVRFieldController::BAVRFieldController(LEDAnimations* led_animations, LaserDet
 }
 
 void BAVRFieldController::laser_hit_message(int hits) {
-  //Hand build JSON for now
-  //Send request for initialization params (mostly node id)
-  //Serial.print("nodeid:"); Serial.println(node_id);
-  // char buffer[256];
-  // memset(buffer, 0, 256);
-
-  // strcpy(buffer,"{\"hits\":\"");
-  // char buffer2[10];
-  // memset(buffer2, 0, 10);
-
-  // snprintf(buffer2, 10, "%d", hits);
-
-  // strcat(buffer,buffer2);
-  // strcat(buffer,"\", \"timestamp\":10000000}");
 
   // Produce a minified JSON document
   const int capacity = JSON_OBJECT_SIZE(2);
@@ -49,6 +35,22 @@ void BAVRFieldController::laser_hit_message(int hits) {
 }
 
 
+bool prefix(const char *pre, const char *str)
+{
+    return strncmp(pre, str, strlen(pre)) == 0;
+}
+
+void BAVRFieldController::subscribe_all() {
+  char buff2[128];
+  memset(buff2, 0, 128);
+
+  strcpy(buff2,"nodered/firescore/");
+  strcat(buff2, node_id);
+  field_comms->subscribe(buff2);
+
+  //Subscribe to all messages for this
+}
+
 //Handle all of the MQTT Messages -- they are being handed off to the controller to do the work
 void BAVRFieldController::callback(char* topic, byte* payload, unsigned int length) {
   Serial.print(F("Message arrived ["));
@@ -63,15 +65,38 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
     buffer[length] = 0;
   }
 
-  if (topicstr.startsWith("led")) {
-    
+  if (prefix("nodered/firescore/", topic)) {
+      StaticJsonDocument<200> doc;
+
+
+  // Deserialize the JSON document
+  DeserializationError error = deserializeJson(doc, buffer);
+
+  // Test if parsing succeeds.
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+
+  // Fetch values.
+  //
+
+  int newfirescore = doc["firescore"];
+
+
+  // Print values.
+    Serial.println(newfirescore);
+    current_fire_score = newfirescore;
   }
 
   if (strcmp(topic,"nodered/initialization")==0) {
         memset(node_id, 0, 128);
         strcpy(node_id,buffer);
         Serial.print(F("Node id initialized: ")); Serial.println(node_id);
-          Serial.print("nodeid:"); Serial.println(node_id);
+        Serial.print("nodeid:"); Serial.println(node_id);
+        //now that we know who we are, subscribe to our nodeid
+        subscribe_all();
 
   }
 
@@ -136,6 +161,12 @@ boolean BAVRFieldController::setup(const char* unique_id) {
 
   strcpy(buff2,"nodered/initialization/");
   strcat(buff2,unique_id);
+  field_comms->subscribe(buff2);
+
+
+  //subscribe to nodered/reset/match
+  memset(buff2, 0, 128);
+  strcpy(buff2,"nodered/reset/match");
   field_comms->subscribe(buff2);
 
   //Hand build JSON for now
