@@ -64,7 +64,7 @@ boolean BAVRFieldComms::connected() {
 
 
 boolean BAVRFieldComms::message(const char* topic, const char* messagestr) {
-  //Serial.println(F("Publish topic:")); Serial.println(topic); Serial.println(F(" message:")); Serial.println(messagestr);
+  Serial.println(F("Publish topic:")); Serial.println(topic); Serial.println(F(" message:")); Serial.println(messagestr);
 
   client->publish(topic, messagestr);
   return true;

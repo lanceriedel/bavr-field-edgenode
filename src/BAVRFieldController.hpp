@@ -12,7 +12,8 @@ public:
     boolean setup(const char* unique_id);
     void loop();
     void callback(char* topic, byte* payload, unsigned int length);
-    void event_trigger(String event);
+    void event_trigger(const char* event);
+    void laser_hit_message(int hit);
 
 
 
@@ -20,7 +21,7 @@ private:
     BAVRFieldComms* field_comms;
     LEDAnimations* led_animations;
     LaserDetect* laser_detect;
-    String nodeID = "";
+    char node_id[128];
 };
 
 #endif
