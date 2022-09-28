@@ -21,7 +21,6 @@ NOTE -  no delays should be anywhere in the loops -- will work to make sure that
 
 //for messaging
 EthernetClient ethClient;
-String unique_id ;
 PubSubClient client(ethClient);
 
 BAVRFieldComms field_comms;
@@ -36,6 +35,7 @@ TroughDetect trough_detect;
 // Update these with values suitable for your network.
 byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
 IPAddress server(192, 168, 1, 112);
+char unique_id[32];
 
 //Where the real work gets handed out
 BAVRFieldController* controller;
@@ -49,24 +49,24 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void ethernet_setup() {
    if (Ethernet.begin(mac) == 0) {
 
-    Serial.println("Failed to configure Ethernet using DHCP");
+    Serial.println(F("Failed to configure Ethernet using DHCP"));
 
     // Check for Ethernet hardware present
 
     if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+      Serial.println(F("Ethernet shield was not found.  Sorry, can't run without hardware. :("));
       while (true) {
         delay(1); // do nothing, no point running without Ethernet hardware
       }
     }
 
     if (Ethernet.linkStatus() == LinkOFF) {
-      Serial.println("Ethernet cable is not connected.");
+      Serial.println(F("Ethernet cable is not connected."));
     }
 
     // initialize the Ethernet device not using DHCP:
     //Ethernet.begin(mac, ip);
-    Serial.println("Could not obtain IP Address.");
+    Serial.println(F("Could not obtain IP Address."));
     exit(1);
   }
 
@@ -75,14 +75,25 @@ void ethernet_setup() {
 void setup()
 {
   Serial.begin(9600);
-  String idstr;
-  idstr += String((long)EEPROM.read(0),HEX);
-  idstr += String((long)EEPROM.read(1),HEX);
-  idstr += String((long)EEPROM.read(2),HEX);
-  idstr += String((long)EEPROM.read(3),HEX);
+ // String idstr;
+  char b[8];
+  memset(b, 0, 8);
+  memset(unique_id, 0, 32);
+
   
-  unique_id = idstr;
-  //unique_id = "TBD";
+  snprintf(b, 8, "%lX",(long)EEPROM.read(0));
+  strcpy(unique_id, b);
+  memset(b, 0, 8);
+  snprintf(b, 8, "%lX",(long)EEPROM.read(1));
+  strcat(unique_id, b);
+  memset(b, 0, 8);
+  snprintf(b, 8, "%lX",(long)EEPROM.read(2));
+  strcat(unique_id, b);
+  memset(b, 0, 8);
+  snprintf(b, 8, "%lX",(long)EEPROM.read(3));
+  strcat(unique_id, b);
+
+ 
   Serial.print(F("BOARD_ID:")); Serial.println((unique_id));
   // Ethernet setup
   delay(500);
@@ -98,6 +109,7 @@ void setup()
   //pubsub init
   client.setServer(server, 1883);
   client.setCallback(callback);
+  client.setBufferSize(512);
   delay(1500);
 
   
@@ -108,7 +120,7 @@ void setup()
   led_animations.setup();
   //comms setup
   Serial.println(F("Comms setup..."));
-  //field_comms.setup(unique_id);
+  field_comms.setup((const char*)unique_id, &client);
   //laser
   Serial.println(F("Laser Detector setup..."));
 
@@ -117,8 +129,9 @@ void setup()
   Serial.println(F("Setup Done begin loops..."));
 
   controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms, &trough_detect);
-  field_comms.setup("TBD", &client);
+  controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms);
   delay(1500);
+  controller->setup(unique_id);
 
 }
 

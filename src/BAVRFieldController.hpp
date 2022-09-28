@@ -10,10 +10,11 @@ class BAVRFieldController
 {
 public:
     BAVRFieldController(LEDAnimations* led_animations, LaserDetect* laser_detect, BAVRFieldComms* field_comms, TroughDetect* trough_detect);
-    boolean setup(String unique_id);
+    boolean setup(const char* unique_id);
     void loop();
     void callback(char* topic, byte* payload, unsigned int length);
-    void event_trigger(String event);
+    void event_trigger(const char* event);
+    void laser_hit_message(int hit);
 
 
 
@@ -22,6 +23,7 @@ private:
     LEDAnimations* led_animations;
     LaserDetect* laser_detect;
     TroughDetect* trough_detect;
+    char node_id[128];
 };
 
 #endif

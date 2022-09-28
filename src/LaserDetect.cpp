@@ -18,18 +18,18 @@ void LaserDetect::laser_init() {
     colorTemp = tcs.calculateColorTemperature_dn40(r, g, b, c);
     lux = tcs.calculateLux(r, g, b);
 
-    Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.print(" K - ");
-    Serial.print("C: "); Serial.print(c, DEC); Serial.print(" - ");
-    Serial.print("LUx: "); Serial.print(lux); Serial.print(" - ");
-    Serial.print("R: "); Serial.print(r, DEC); Serial.print(" -");
-    Serial.print("G: "); Serial.print(g, DEC); Serial.print(" -");
-    Serial.print("B: "); Serial.print(b, DEC); Serial.println(" -");
+    Serial.print(F("Color Temp: ")); Serial.print(colorTemp, DEC); Serial.print(F(" K - "));
+    Serial.print(F("C: ")); Serial.print(c, DEC); Serial.print(F(" - "));
+    Serial.print(F("LUx: ")); Serial.print(lux); Serial.print(F(" - "));
+    Serial.print(F("R: ")); Serial.print(r, DEC); Serial.print(F(" -"));
+    Serial.print(F("G: ")); Serial.print(g, DEC); Serial.print(F(" -"));
+    Serial.print(F("B: ")); Serial.print(b, DEC); Serial.println(F(" -"));
 
   
     total_k+=colorTemp;
     total_r+=r;
     delay(50);
-    Serial.println("Calibrating... "); Serial.println(" ");
+    Serial.println(F("Calibrating... ")); Serial.println(F(" "));
     i--;
   }
 
@@ -37,8 +37,8 @@ void LaserDetect::laser_init() {
   if (avg_k==0) {
     avg_k = total_k/numvalues;
     avg_r = total_r/numvalues;
-    Serial.print("AVG K: "); Serial.print(avg_k, DEC); Serial.println(" ");
-    Serial.print("AVG R: "); Serial.print(avg_r, DEC); Serial.println(" ");
+    Serial.print(F("AVG K: ")); Serial.print(avg_k, DEC); Serial.println(F(" "));
+    Serial.print(F("AVG R: ")); Serial.print(avg_r, DEC); Serial.println(F(" "));
 
     digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(2000);               // wait for a second
@@ -92,7 +92,7 @@ boolean LaserDetect::laser_detect() {
   //if ((abs(avg_r-r))>100) {
 
   if (dff_temp>MAX_TEMP_DIFF) {
-    Serial.print("DIFF K: "); Serial.print(dff_temp); Serial.println(" ");
+    Serial.print(F("DIFF K: ")); Serial.print(dff_temp); Serial.println(" ");
 
     laser_trigger();
     return true;
