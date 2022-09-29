@@ -41,12 +41,13 @@ bool prefix(const char *pre, const char *str)
 }
 
 void BAVRFieldController::subscribe_all() {
-  char buff2[128];
-  memset(buff2, 0, 128);
+  char buff2[256];
+  memset(buff2, 0, 256);
 
   strcpy(buff2,"nodered/firescore/");
   strcat(buff2, node_id);
   field_comms->subscribe(buff2);
+  Serial.print(F("Subscribed to:")); Serial.println(buff2);
 
   //Subscribe to all messages for this
 }
@@ -66,38 +67,29 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
   }
 
   if (prefix("nodered/firescore/", topic)) {
-      StaticJsonDocument<200> doc;
+      StaticJsonDocument<32> doc;
+    // Deserialize the JSON document
+    DeserializationError error = deserializeJson(doc, buffer);
 
+    // Test if parsing succeeds.
+    if (error) {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
 
-  // Deserialize the JSON document
-  DeserializationError error = deserializeJson(doc, buffer);
-
-  // Test if parsing succeeds.
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
-    return;
-  }
-
-  // Fetch values.
-  //
-
-  int newfirescore = doc["firescore"];
-
-
-  // Print values.
+ 
+    int newfirescore = doc["firescore"];
     Serial.println(newfirescore);
     current_fire_score = newfirescore;
   }
 
-  if (strcmp(topic,"nodered/initialization")==0) {
+  if (prefix("nodered/initialization",topic)) {
         memset(node_id, 0, 128);
         strcpy(node_id,buffer);
         Serial.print(F("Node id initialized: ")); Serial.println(node_id);
-        Serial.print("nodeid:"); Serial.println(node_id);
         //now that we know who we are, subscribe to our nodeid
         subscribe_all();
-
   }
 
   if (topicstr.equals("windowon")) {
@@ -110,9 +102,9 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
       
       Serial.println("windowoff msg");
   }
-  //make this better
-  
- Serial.println(buffer);
+    //make this better
+    
+  Serial.println(buffer);
   Serial.println();
 }
 

@@ -12,6 +12,7 @@ BAVRFieldComms::BAVRFieldComms( )
 }
 
 void BAVRFieldComms::subscribe(const char* topic) {
+  Serial.print(F("Subscribe to topic:"));Serial.println(topic);
       client->subscribe(topic);
 }
 
