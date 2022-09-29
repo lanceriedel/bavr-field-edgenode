@@ -14,12 +14,12 @@ BAVRFieldController::BAVRFieldController(LEDAnimations* led_animations, LaserDet
 void BAVRFieldController::laser_hit_message(int hits) {
 
   // Produce a minified JSON document
-  const int capacity = JSON_OBJECT_SIZE(2);
+  const int capacity = JSON_OBJECT_SIZE(3);
   StaticJsonDocument<capacity> doc;
   char output[128];
-  doc["hits"] = hits;
+  doc["num_hits"] = hits;
   doc["timestamp"] = 100000;
-  doc["nodeid"] = node_id;
+  doc["node_id"] = (const char*)node_id;
 
   serializeJson(doc, output);
 
