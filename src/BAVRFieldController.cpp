@@ -19,6 +19,7 @@ void BAVRFieldController::laser_hit_message(int hits) {
   char output[128];
   doc["hits"] = hits;
   doc["timestamp"] = 100000;
+  doc["nodeid"] = node_id;
 
   serializeJson(doc, output);
 
