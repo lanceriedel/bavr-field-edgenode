@@ -7,13 +7,11 @@
 
 BAVRFieldComms::BAVRFieldComms( )
 {
-
-
 }
 
 void BAVRFieldComms::subscribe(const char* topic) {
   Serial.print(F("Subscribe to topic:"));Serial.println(topic);
-      client->subscribe(topic);
+  client->subscribe(topic);
 }
 
 void BAVRFieldComms::reconnect() {
@@ -24,11 +22,6 @@ void BAVRFieldComms::reconnect() {
     // Attempt to connect
     if (client->connect("node-avrfield2")) {
       Serial.println("connected");
-      // Once connected, publish an announcement...
-      //String hello = String("hello world:" + unique_id);
-
-     // client->publish("outTopic", hello.c_str());
-      // ... and resubscribe
       client->subscribe("nodered/initialization/#");
       client->subscribe("windowon");
       client->subscribe("windowoff");
@@ -42,7 +35,7 @@ void BAVRFieldComms::reconnect() {
       delay(5000);
 
     }
-        Serial.print("Finished MQTT connection...");
+    Serial.print("Finished MQTT connection...");
 
   }
 }
@@ -66,7 +59,6 @@ boolean BAVRFieldComms::connected() {
 
 boolean BAVRFieldComms::message(const char* topic, const char* messagestr) {
   Serial.println(F("Publish topic:")); Serial.println(topic); Serial.println(F(" message:")); Serial.println(messagestr);
-
   client->publish(topic, messagestr);
   return true;
 }
@@ -75,8 +67,6 @@ boolean BAVRFieldComms::loop() {
     if (!client->connected()) {
       reconnect();
     } 
-   // Serial.println("-");
-    //pubsub loop
     client->loop();
 }
 

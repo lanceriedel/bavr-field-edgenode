@@ -59,9 +59,8 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
   Serial.print((topic));
   Serial.print(F("] "));
   Serial.println(length);
-  String topicstr(topic);
-  char buffer[512];
 
+  char buffer[512];
   if (length>0) {
     strncpy(buffer, (const char*) payload, length);
     buffer[length] = 0;
@@ -92,18 +91,7 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
         //now that we know who we are, subscribe to our nodeid
         subscribe_all();
   }
-
-  if (topicstr.equals("windowon")) {
-      led_animations->ledanimate(1);
-      Serial.println("windowon msg");
-  }
-
-  if (topicstr.equals("windowoff")) {
-      led_animations->ledanimate(0);
-      
-      Serial.println("windowoff msg");
-  }
-    //make this better
+  //make this better
     
   Serial.println(buffer);
   Serial.println();
