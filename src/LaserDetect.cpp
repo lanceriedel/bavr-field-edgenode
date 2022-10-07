@@ -120,7 +120,7 @@ int8_t LaserDetect::laser_detect() {
     colorTemp = tcs[i].calculateColorTemperature_dn40(r, g, b, c);
     lux = tcs[i].calculateLux(r, g, b);
 
-    //Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.print(" K - ");
+    //Serial.println(" ");Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.println(" K - ");
     //Serial.print("C: "); Serial.print(c, DEC); Serial.print(" - ");
     //Serial.print("LUx: "); Serial.print(lux); Serial.print(" - ");
     //Serial.print("R: "); Serial.print(r, DEC); Serial.print(" -");
@@ -132,6 +132,7 @@ int8_t LaserDetect::laser_detect() {
     if (dff_temp<0) dff_temp = dff_temp * -1;
     if (dff_temp>100000) dff_temp = 0;
     //if ((abs(avg_r-r))>100) {
+     // Serial.print(F("Sensor# ["));Serial.print(i);Serial.print(F("] DIFF K: ")); Serial.print(dff_temp); Serial.println(" ");
 
     if (dff_temp>MAX_TEMP_DIFF) {
       Serial.println(F(" "));

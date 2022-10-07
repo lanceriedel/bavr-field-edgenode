@@ -13,16 +13,6 @@ int BallDetect::get_pin() {
   return this->pin ;
 }
 
-//Too keep things clean, we are going to check this on the controller loop and clear
-bool BallDetect::triggeredOld() {
-   if (hastriggered) {
-    hastriggered = false;
-    return true;
-   } else
-   return false;
-}
-
-
 void BallDetect::ball_trigger() {
     Serial.println(F("Ball Triggered true"));
     if (millis()-lasttrigger > MAX_WAIT) {

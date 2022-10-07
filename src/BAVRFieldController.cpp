@@ -61,6 +61,32 @@ void BAVRFieldController::ball_detect_message(int drops) {
   field_comms->message(buff2,(const char*)output);
 }
 
+void BAVRFieldController::trough_detect_message(int bags) {
+
+  // Produce a minified JSON document
+  const int capacity = JSON_OBJECT_SIZE(4);
+  StaticJsonDocument<capacity> doc;
+  char output[128];
+  doc["num_bags"] = bags;
+  doc["timestamp"] = 100000;
+  doc["node_id"] = (const char*)node_id;
+  doc["side_id"] = 0;
+
+  serializeJson(doc, output);
+
+
+  char buff2[256];
+  memset(buff2, 0, 256);
+
+  strcpy(buff2,"edgenode/troughbags/");
+  strcat(buff2,node_id);
+
+  Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
+
+  field_comms->message(buff2,(const char*)output);
+}
+
+
 
 bool prefix(const char *pre, const char *str)
 {
@@ -75,6 +101,14 @@ void BAVRFieldController::subscribe_all() {
   strcat(buff2, node_id);
   field_comms->subscribe(buff2);
   Serial.print(F("Subscribed to:")); Serial.println(buff2);
+
+  //Subscribe to all messages for this
+}
+
+void BAVRFieldController::reset_all() {
+  
+  //ball_detect.reset();
+  trough_detect->reset();
 
   //Subscribe to all messages for this
 }
@@ -117,6 +151,13 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
     current_fire_score = newfirescore;
   }
 
+if (prefix("nodered/reset/match",topic)) {
+        
+        Serial.print(F("Node id  reset: ")); Serial.println(node_id);
+        //now that we know who we are, subscribe to our nodeid
+        reset_all();
+  }
+
   if (prefix("nodered/initialization",topic)) {
         memset(node_id, 0, 128);
         strcpy(node_id,buffer);
@@ -138,6 +179,7 @@ void BAVRFieldController::event_trigger(const char* event, int whichone) {
       this->laser_hit_message(1, whichone);
     }
   if(strcmp(event, "trough") ==  0) {
+      this->trough_detect_message(trough_detect->bag_num());
       //Serial.println(F("Controller: Trough event triggered"));
       //field_comms->message("avr-building/1/trough", String(trough_detect->bag_num())); //todo: update to match schema
     }
@@ -153,13 +195,15 @@ void BAVRFieldController::event_trigger(const char* event, int whichone) {
 void BAVRFieldController::loop() {
   
   field_comms->loop();
+  trough_detect->trough_detect();
+
   int8_t trigger = laser_detect->laser_detect();
   if (trigger>=0) {
     event_trigger("laser",trigger);
   }
   led_animations->ledanimate();
 
-  if(trough_detect->trough_detect())
+  if(trough_detect->triggered())
     event_trigger("trough",0);
 
   if(ball_detect->ball_detect())

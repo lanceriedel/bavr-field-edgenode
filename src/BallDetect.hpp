@@ -15,7 +15,6 @@ public:
     void ball_init(int pin);
     void ball_trigger();
     bool ball_detect();
-    bool triggeredOld();
     int get_pin();
 
 private:

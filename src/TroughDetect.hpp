@@ -4,8 +4,8 @@
 #include "GyverHX711.h"
 #include "FastLED.h"
 
-#define DATA_PIN_TROUGH 3
-#define CLOCK_PIN_TROUGH 2
+#define DATA_PIN_TROUGH 29
+#define CLOCK_PIN_TROUGH 31
 #define LED_PIN_TROUGH 4
 #define NUM_TROUGH_LED 13
 
@@ -15,9 +15,11 @@ public:
     TroughDetect();
     void trough_init();
     void trough_trigger();
+    boolean triggered();
     void trough_tare();
     int trough_detect();
     int bag_num();
+    void reset();
 
 private:
     CRGB trough_leds[1][NUM_TROUGH_LED];
@@ -28,6 +30,8 @@ private:
     int num_bags = 0;
     long bag_weight = 65000;
     long threshold = 25000; //sensor is sensistive... lol. bit of a threshold to help
+    bool hastriggered = false;
+
 };
 
 #endif

@@ -19,7 +19,6 @@ private:
                            Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X)};
 
 
-    void displaySensorDetails(Adafruit_TCS34725 *sensor);
 
 
 

@@ -17,9 +17,12 @@ public:
     void event_trigger(const char* event, int whichone);
     void laser_hit_message(int hits, int whichone);
     void ball_detect_message(int drops);
+    void trough_detect_message(int bags);
+
     void interrupt(int pin);
 
     void subscribe_all();
+    void reset_all();
 
 
 
