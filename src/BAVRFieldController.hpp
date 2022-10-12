@@ -14,6 +14,7 @@ public:
     boolean setup(const char* unique_id);
     void loop();
     void callback(char* topic, byte* payload, unsigned int length);
+    void reset_match();
     void event_trigger(const char* event, int whichone);
     void laser_hit_message(int hits, int whichone);
     void ball_detect_message(int drops);
