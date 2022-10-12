@@ -120,7 +120,7 @@ void setup()
   //pubsub init
   client.setServer(server, 1883);
   client.setCallback(callback);
-  client.setBufferSize(512);
+  client.setBufferSize(1512);
   delay(1500);
 
 

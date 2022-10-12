@@ -136,10 +136,13 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
   if (length>0) {
     strncpy(buffer, (const char*) payload, length);
     buffer[length] = 0;
+    Serial.println(buffer);
+
   }
 
+
   if (prefix("nodered/firescore/", topic)) {
-      StaticJsonDocument<32> doc;
+      StaticJsonDocument<256> doc;
     // Deserialize the JSON document
     DeserializationError error = deserializeJson(doc, buffer);
 
@@ -150,10 +153,11 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
       return;
     }
 
- 
-    int newfirescore = doc["firescore"];
+    int newfirescore = doc["FCS"];
+    Serial.println(F("FCS:"));
     Serial.println(newfirescore);
     current_fire_score = newfirescore;
+
   }
 
 if (prefix("nodered/reset/match",topic)) {
