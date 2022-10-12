@@ -39,7 +39,7 @@ byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
 //MQTT Server Address
 IPAddress server(192, 168, 1, 112);
 char unique_id[32];
-uint8_t BALL_DROP_PIN = 18;
+uint8_t BALL_DROP_PIN = 2;
 
 //Where the real work gets handed out
  BAVRFieldController* controller;
