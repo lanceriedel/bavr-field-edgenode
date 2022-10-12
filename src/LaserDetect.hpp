@@ -10,7 +10,7 @@ public:
     void laser_init();
     void laser_trigger(uint8_t);
     int8_t laser_detect();
-    int8_t triggered();
+   // int8_t triggered();
 
 private:
     Adafruit_TCS34725 tcs[4] = {Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X),
@@ -37,6 +37,8 @@ private:
 
     const int32_t MAX_TEMP_DIFF=600;
     uint8_t hastriggered = -1;
+    int MAX_WAIT =500;
+    uint32_t lasttrigger = 0;
     const int8_t NUM_SENSORS = 2;
 
 };

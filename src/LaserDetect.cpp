@@ -81,33 +81,45 @@ void LaserDetect::laser_init() {
   }
 }
 
-//Too keep things clean, we are going to check this on the controller loop and clear
-int8_t LaserDetect::triggered() {
-  int8_t whichone = -1;
-   if (hastriggered>-1) {
-    whichone = hastriggered;
-    hastriggered = -1;
-    return whichone;
-   } else
-    return whichone;
+// //Too keep things clean, we are going to check this on the controller loop and clear
+// int8_t LaserDetect::triggered() {
+//   if (millis()-lasttrigger > MAX_WAIT) {
 
-}
+//       lasttrigger = millis();
+//       hastriggered = true;
+//       int8_t whichone = -1;
+//       if (hastriggered>-1) {
+//         Serial.println(F("XXXXXXXXXXXXXXXX LASER HIT XXX"));
+//         whichone = hastriggered;
+//         hastriggered = -1;
+//         return whichone;
+//     } 
+//   } 
+// }
 
 
 void LaserDetect::laser_trigger(uint8_t whichone) {
-    hastriggered = whichone;
-    //client->publish("avr-building","shot-fired");
-
-    //Serial.print("FLASH LED"); Serial.println(" ");
-
-    //digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
-    //delay(1000);               // wait for a second DONT WANT TO EVER WAIT -- BAD
-   // digitalWrite(led, LOW); 
+uint32_t ts = millis()-lasttrigger;
+ if (ts > MAX_WAIT) {
+      lasttrigger = millis();
+      hastriggered = whichone;
+      if (hastriggered>-1) {
+        Serial.print(F("XXXXXXXXXXXXXXXX LASER HIT XXX Time Since (ms):")); Serial.println(ts);
+    } 
+  } else {
+    hastriggered = -1;
+  }
 
 }
 
 //returns which laser detector -1 for none
 int8_t LaserDetect::laser_detect() {
+
+//Check for delay so that we don't continually trigger
+   if (millis()-lasttrigger < MAX_WAIT) {
+      return -1;
+    } 
+
   //TODO LOOP TO CHECK ALL DETECTORS
   for (int i=0;i<NUM_SENSORS;i++){
     // Choose the correct bus
