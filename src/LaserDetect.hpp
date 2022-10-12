@@ -41,6 +41,8 @@ private:
     uint8_t hastriggered = -1;
     int MAX_WAIT =500;
     uint32_t lasttrigger = 0;
+
+    //TODO: Change this to 4 when you have them all plugged in!
     const int8_t NUM_SENSORS = 2;
 
 };
