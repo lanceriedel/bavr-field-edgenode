@@ -10,6 +10,8 @@ public:
     void laser_init();
     void laser_trigger(uint8_t);
     int8_t laser_detect();
+    void calibrate() ;
+    void reset();
    // int8_t triggered();
 
 private:
@@ -22,7 +24,7 @@ private:
 
 
 
-    int led = 13;
+   // int led = 13;
     int avg_values_countdown = 5;
     uint32_t total_k[4]={0,0,0,0};
     //uint32_t total_k = 0;

@@ -96,6 +96,8 @@ bool prefix(const char *pre, const char *str)
 void BAVRFieldController::reset_match() {
   Serial.println("MATCH RESET!");
   this->current_fire_score = 0;
+  //reset laser detect light sensor?
+  this->laser_detect->reset();
 }
 
 void BAVRFieldController::subscribe_all() {
@@ -178,8 +180,6 @@ if (prefix("nodered/reset/match",topic)) {
   if (prefix("nodered/reset/match",topic)) {
     reset_match();
   }    
-  Serial.println(buffer);
-  Serial.println();
 }
 
 void BAVRFieldController::event_trigger(const char* event, int whichone) {

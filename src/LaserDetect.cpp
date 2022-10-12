@@ -18,24 +18,17 @@ void tcaselect(uint8_t i) {
   Wire.endTransmission();  
 }
 
-void LaserDetect::laser_init() {
-  for (int i=0;i<NUM_SENSORS;i++) {
-    //tcs[i] = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X);
-    tcaselect(i);
-
-    if (tcs[i].begin()) {
-      Serial.println("Found sensor");
-    } else {
-      Serial.print("No TCS34725 found ... check your connections [");Serial.print(i);Serial.println("]");
-      while (1);
-    }
-  }
-
-
-  for (int j=0;j<NUM_SENSORS;j++) {
+void LaserDetect::reset() {
+  calibrate();
+}
+void LaserDetect::calibrate() {
+    for (int j=0;j<NUM_SENSORS;j++) {
     Serial.println(" ");
     // Choose the correct bus
     tcaselect(j);
+    total_k[j] = 0;
+    total_r[j] = 0;
+    avg_k[j] = 0;
 
     int numvalues = avg_values_countdown;
     int i = avg_values_countdown;
@@ -48,11 +41,11 @@ void LaserDetect::laser_init() {
         lux = tcs[j].calculateLux(r, g, b);
 
         Serial.print(F("Color Temp: ")); Serial.print(colorTemp, DEC); Serial.print(F(" K - "));
-        Serial.print(F("C: ")); Serial.print(c, DEC); Serial.print(F(" - "));
-        Serial.print(F("LUx: ")); Serial.print(lux); Serial.print(F(" - "));
-        Serial.print(F("R: ")); Serial.print(r, DEC); Serial.print(F(" -"));
-        Serial.print(F("G: ")); Serial.print(g, DEC); Serial.print(F(" -"));
-        Serial.print(F("B: ")); Serial.print(b, DEC); Serial.println(F(" -"));
+        // Serial.print(F("C: ")); Serial.print(c, DEC); Serial.print(F(" - "));
+        // Serial.print(F("LUx: ")); Serial.print(lux); Serial.print(F(" - "));
+        // Serial.print(F("R: ")); Serial.print(r, DEC); Serial.print(F(" -"));
+        // Serial.print(F("G: ")); Serial.print(g, DEC); Serial.print(F(" -"));
+        // Serial.print(F("B: ")); Serial.print(b, DEC); Serial.println(F(" -"));
 
       
         total_k[j]+=colorTemp;
@@ -63,7 +56,9 @@ void LaserDetect::laser_init() {
         i--;
       }
     
+      Serial.println(F("Find AVG "));
   
+    //delay(100);
 
     //Calculate the Average
     if (avg_k[j]==0) {
@@ -74,11 +69,28 @@ void LaserDetect::laser_init() {
       Serial.println(F(" "));
       Serial.print(F("Sensor# ["));Serial.print(j);Serial.print(F("] AVG R: ")); Serial.print(avg_r[j], DEC); Serial.println(F(" "));
 
-      digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
-      delay(2000);               // wait for a second
-      digitalWrite(led, LOW); 
+     // digitalWrite(led, HIGH);   // turn the LED on (HIGH is the voltage level)
+      delay(200);               // wait for a second
+      //digitalWrite(led, LOW); 
     }
   }
+}
+
+void LaserDetect::laser_init() {
+  for (int i=0;i<NUM_SENSORS;i++) {
+    //tcs[i] = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X);
+    tcaselect(i);
+
+    if (tcs[i].begin()) {
+      Serial.println("Found sensor");
+    } else {
+      Serial.print("No TCS34725 found ... check your connections [");Serial.print(i);Serial.println("]");
+      //while (1);
+    }
+  }
+
+  calibrate();
+  
 }
 
 // //Too keep things clean, we are going to check this on the controller loop and clear
@@ -148,7 +160,7 @@ int8_t LaserDetect::laser_detect() {
 
     if (dff_temp>MAX_TEMP_DIFF) {
       Serial.println(F(" "));
-      Serial.print(F("Sensor# ["));Serial.print(i);Serial.print(F("] DIFF K: ")); Serial.print(dff_temp); Serial.println(" ");
+      Serial.print(F("Sensor# ["));Serial.print(i);Serial.print(F("] DIFF K: ")); Serial.print(dff_temp); Serial.print(" raw:"); Serial.print(colorTemp);
 
       laser_trigger(i);
       return i;
