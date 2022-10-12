@@ -41,6 +41,11 @@ bool prefix(const char *pre, const char *str)
     return strncmp(pre, str, strlen(pre)) == 0;
 }
 
+void BAVRFieldController::reset_match() {
+  Serial.println("MATCH RESET!");
+  this->current_fire_score = 0;
+}
+
 void BAVRFieldController::subscribe_all() {
   char buff2[256];
   memset(buff2, 0, 256);
@@ -91,8 +96,10 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
         //now that we know who we are, subscribe to our nodeid
         subscribe_all();
   }
-  //make this better
-    
+
+  if (prefix("nodered/reset/match",topic)) {
+    reset_match();
+  }    
   Serial.println(buffer);
   Serial.println();
 }
@@ -146,9 +153,10 @@ boolean BAVRFieldController::setup(const char* unique_id) {
 
 
   //subscribe to nodered/reset/match
-  memset(buff2, 0, 128);
-  strcpy(buff2,"nodered/reset/match");
-  field_comms->subscribe(buff2);
+  char buff3[64];
+  memset(buff3, 0, 64);
+  strcpy(buff3,"nodered/reset/match");
+  field_comms->subscribe(buff3);
 
   //Hand build JSON for now
   //Send request for initialization params (mostly node id)

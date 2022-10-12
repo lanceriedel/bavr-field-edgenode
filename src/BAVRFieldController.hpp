@@ -16,6 +16,7 @@ public:
     void callback(char* topic, byte* payload, unsigned int length);
     void event_trigger(const char* event);
     void laser_hit_message(int hit);
+    void reset_match();
     void subscribe_all();
 
 
