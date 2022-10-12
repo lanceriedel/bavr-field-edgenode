@@ -38,14 +38,21 @@ BallDetect ball_detect;
 byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
 IPAddress server(192, 168, 1, 112);
 char unique_id[32];
+uint8_t BALL_DROP_PIN = 18;
 
 //Where the real work gets handed out
-BAVRFieldController* controller;
+ BAVRFieldController* controller;
+
 
 
 //Handle all of the MQTT Messages -- they are being handed off to the controller to do the work
 void callback(char* topic, byte* payload, unsigned int length) {
   controller->callback(topic, payload,length);
+}
+
+
+void interruptPinBallDrop() {
+  controller->interrupt(BALL_DROP_PIN);
 }
 
 void ethernet_setup() {
@@ -76,6 +83,8 @@ void ethernet_setup() {
 
 void setup()
 {
+  pinMode(BALL_DROP_PIN, INPUT_PULLUP);     
+  digitalWrite(BALL_DROP_PIN, HIGH); // turn on the pullup
   Serial.begin(9600);
  // String idstr;
   char b[8];
@@ -131,8 +140,10 @@ void setup()
   trough_detect.trough_init();
 
   Serial.println(F("Ball Detector setup..."));
+  // initialize the sensor pin as an input:
+ 
 
-  ball_detect.ball_init();
+  ball_detect.ball_init(BALL_DROP_PIN);
 
 
   Serial.println(F("Setup Done begin loops..."));
@@ -141,11 +152,17 @@ void setup()
 
   delay(1500);
   controller->setup(unique_id);
+  attachInterrupt(digitalPinToInterrupt(BALL_DROP_PIN), interruptPinBallDrop, FALLING);
+
 
 }
+
+
 
 void loop()
 {
   //Serial.println(".");
   controller->loop();
+  //Serial.println(digitalRead(BALL_DROP_PIN));
+
 }
