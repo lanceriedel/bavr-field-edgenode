@@ -113,7 +113,6 @@ void BAVRFieldController::subscribe_all() {
 }
 
 void BAVRFieldController::reset_all() {
-  
   //ball_detect.reset();
   trough_detect->reset();
 

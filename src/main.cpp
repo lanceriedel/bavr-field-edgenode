@@ -27,7 +27,7 @@ UUID uuid;
 EthernetClient ethClient;
 PubSubClient client(ethClient);
 BAVRFieldComms field_comms;
-IPAddress server(192, 168, 1, 112); //MQTT server
+IPAddress server(192, 168, 1, 113); // MQTT server
 
 // for leds
 LEDAnimations led_animations;
@@ -39,7 +39,7 @@ BallDetect ball_detect;
 // laser detector
 LaserDetect laser_detect;
 
-//trough
+// trough
 TroughDetect trough_detect;
 
 // Where the real work gets handed out
@@ -69,13 +69,12 @@ void setup()
   // set up ethernet
   Serial.println(F("Ethernet setup..."));
   byte mac[] = {
-    uuid.uuid[0],
-    uuid.uuid[1],
-    uuid.uuid[2],
-    uuid.uuid[3],
-    uuid.uuid[4],
-    uuid.uuid[5]
-  };
+      uuid.uuid[0],
+      uuid.uuid[1],
+      uuid.uuid[2],
+      uuid.uuid[3],
+      uuid.uuid[4],
+      uuid.uuid[5]};
   ethernet_setup(mac);
   Serial.print(F("My IP address: "));
   Serial.println(Ethernet.localIP());
@@ -98,29 +97,50 @@ void setup()
   trough_detect.trough_init();
 
   Serial.println(F("Pubsub setup..."));
-  //pubsub init
-  client.setServer(server, 1883);
+  // pubsub init
+  client.setServer(server, 18830);
   client.setCallback(callback);
   client.setBufferSize(1512);
   delay(1500);
 
-  //comms setup
+  // comms setup
   Serial.println(F("Comms setup..."));
-  byte* suuid = uuid.simpl_uuid;
-  field_comms.setup((const char*) suuid, &client);
+  byte *suuid = uuid.simpl_uuid;
+  field_comms.setup((const char *)suuid, &client);
 
   Serial.println(F("Setup Done begin loops..."));
 
-  controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms, &trough_detect, &ball_detect);
+  controller = new BAVRFieldController(&led_animations, &laser_detect, &field_comms, &trough_detect, &ball_detect);
 
   delay(1500);
-  controller->setup((const char*)suuid);
+  controller->setup((const char *)suuid);
   attachInterrupt(digitalPinToInterrupt(BALL_DROP_PIN), interruptPinBallDrop, FALLING);
 }
+
+
+unsigned long start_time = 0;
+unsigned long end_time = 0;
+unsigned long last_print_time = 0;
+unsigned long worst_loop_time = 0;
 
 void loop()
 {
   // Serial.println(".");
+  start_time = millis();
   controller->loop();
+  end_time = millis();
   // Serial.println(digitalRead(BALL_DROP_PIN));
+  unsigned long duration = end_time - start_time;
+  if (duration > worst_loop_time)
+  {
+    worst_loop_time = duration;
+  }
+  if (millis() - last_print_time > 2000)
+  {
+    last_print_time = millis();
+    Serial.print("LOOPTIME: ");
+    Serial.print(duration);
+    Serial.print("\tWORST LOOP TIME: ");
+    Serial.println(worst_loop_time);
+  }
 }

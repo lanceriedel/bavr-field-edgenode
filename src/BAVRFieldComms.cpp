@@ -12,7 +12,7 @@ BAVRFieldComms::BAVRFieldComms( )
 void BAVRFieldComms::subscribe(const char* topic) {
   Serial.print(F("Subscribe to topic:"));Serial.println(topic);
   client->subscribe(topic);
-}                                                          
+}
 
 void BAVRFieldComms::reconnect() {
   // Loop until we're reconnected
@@ -46,10 +46,10 @@ boolean BAVRFieldComms::setup(const char* unique_id, PubSubClient* client) {
      if (!client->connected()) {
       reconnect();
       delay(1150);
-    } 
+    }
     this->unique_id = unique_id;
     return true;
-    
+
 }
 
 boolean BAVRFieldComms::connected() {
@@ -66,7 +66,7 @@ boolean BAVRFieldComms::message(const char* topic, const char* messagestr) {
 boolean BAVRFieldComms::loop() {
     if (!client->connected()) {
       reconnect();
-    } 
+    }
     client->loop();
 }
 
