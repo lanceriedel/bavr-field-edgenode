@@ -85,7 +85,7 @@ void LaserDetect::laser_init() {
       Serial.println("Found sensor");
     } else {
       Serial.print("No TCS34725 found ... check your connections [");Serial.print(i);Serial.println("]");
-      //while (1);
+      while (1);
     }
   }
 

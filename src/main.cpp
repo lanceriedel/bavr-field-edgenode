@@ -4,7 +4,6 @@ to connect to an MQTT host at IPAddress server(192, 168, 1, 112) (or change appr
 
 NOTE -  no delays should be anywhere in the loops -- will work to make sure that this is true especially in LED animations
 
- 
 */
 
 #include <SPI.h>
@@ -18,104 +17,85 @@ NOTE -  no delays should be anywhere in the loops -- will work to make sure that
 #include "LEDAnimations.hpp"
 #include "BAVRFieldComms.hpp"
 #include "BAVRFieldController.hpp"
-#include <EEPROM.h>
+#include "ether.hpp"
+#include "uuid.hpp"
 
-//for messaging
+// UUID
+UUID uuid;
+
+// networking
 EthernetClient ethClient;
 PubSubClient client(ethClient);
-
 BAVRFieldComms field_comms;
+IPAddress server(192, 168, 1, 112); //MQTT server
 
-//for laser detecting
-LaserDetect laser_detect;
 // for leds
 LEDAnimations led_animations;
 
-TroughDetect trough_detect;
+// ball detector
+uint8_t BALL_DROP_PIN = 2;
 BallDetect ball_detect;
 
-// Update these with values suitable for your network.
-byte mac[]    = {  0xDE, 0xED, 0xBA, 0xFE, 0xFE, 0xED };
-//MQTT Server Address
-IPAddress server(192, 168, 1, 112);
-char unique_id[32];
-uint8_t BALL_DROP_PIN = 2;
+// laser detector
+LaserDetect laser_detect;
 
-//Where the real work gets handed out
- BAVRFieldController* controller;
+//trough
+TroughDetect trough_detect;
 
-
-
-//Handle all of the MQTT Messages -- they are being handed off to the controller to do the work
-void callback(char* topic, byte* payload, unsigned int length) {
-  controller->callback(topic, payload,length);
-}
-
-
-void interruptPinBallDrop() {
+// Where the real work gets handed out
+BAVRFieldController *controller;
+void interruptPinBallDrop()
+{
   controller->interrupt(BALL_DROP_PIN);
 }
 
-void ethernet_setup() {
-   if (Ethernet.begin(mac) == 0) {
-
-    Serial.println(F("Failed to configure Ethernet using DHCP"));
-
-    // Check for Ethernet hardware present
-
-    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-      Serial.println(F("Ethernet shield was not found.  Sorry, can't run without hardware. :("));
-      while (true) {
-        delay(1); // do nothing, no point running without Ethernet hardware
-      }
-    }
-
-    if (Ethernet.linkStatus() == LinkOFF) {
-      Serial.println(F("Ethernet cable is not connected."));
-    }
-
-    // initialize the Ethernet device not using DHCP:
-    //Ethernet.begin(mac, ip);
-    Serial.println(F("Could not obtain IP Address."));
-    exit(1);
-  }
-
+// Handle all of the MQTT Messages -- they are being handed off to the controller to do the work
+void callback(char *topic, byte *payload, unsigned int length)
+{
+  controller->callback(topic, payload, length);
 }
 
 void setup()
 {
-  pinMode(BALL_DROP_PIN, INPUT_PULLUP);     
-  digitalWrite(BALL_DROP_PIN, HIGH); // turn on the pullup
-  Serial.begin(9600);
- // String idstr;
-  char b[8];
-  memset(b, 0, 8);
-  memset(unique_id, 0, 32);
+  // set up serial
+  Serial.begin(115200);
 
-  
-  snprintf(b, 8, "%lX",(long)EEPROM.read(0));
-  strcpy(unique_id, b);
-  memset(b, 0, 8);
-  snprintf(b, 8, "%lX",(long)EEPROM.read(1));
-  strcat(unique_id, b);
-  memset(b, 0, 8);
-  snprintf(b, 8, "%lX",(long)EEPROM.read(2));
-  strcat(unique_id, b);
-  memset(b, 0, 8);
-  snprintf(b, 8, "%lX",(long)EEPROM.read(3));
-  strcat(unique_id, b);
-
+  // setup uuid
+  uuid.init();
   Serial.println("Board ID Comes from https://github.com/lanceriedel/burn-uuid-eeprom");
-  Serial.print(F("BOARD_ID:")); Serial.println((unique_id));
-  // Ethernet setup
-  delay(500);
+  Serial.print(F("BOARD_ID:"));
+  Serial.println(((char *)uuid.simpl_uuid));
 
-   ethernet_setup();
-  // print your local IP address:
+  // set up ethernet
+  Serial.println(F("Ethernet setup..."));
+  byte mac[] = {
+    uuid.uuid[0],
+    uuid.uuid[1],
+    uuid.uuid[2],
+    uuid.uuid[3],
+    uuid.uuid[4],
+    uuid.uuid[5]
+  };
+  ethernet_setup(mac);
   Serial.print(F("My IP address: "));
   Serial.println(Ethernet.localIP());
-  // Allow the hardware to sort itself out
-  delay(1500);
+  delay(1500); // Allow the hardware to sort itself out
+
+  // set up the LED animations
+  Serial.println(F("LED Animations setup..."));
+  led_animations.setup();
+
+  // set up the ball detector
+  Serial.println(F("Ball Detector setup..."));
+  ball_detect.ball_init(BALL_DROP_PIN);
+
+  // set up the laser detector
+  Serial.println(F("Laser Detector setup..."));
+  laser_detect.laser_init();
+
+  // set up the scale (trough)
+  Serial.println(F("Trough setup..."));
+  trough_detect.trough_init();
 
   Serial.println(F("Pubsub setup..."));
   //pubsub init
@@ -124,46 +104,23 @@ void setup()
   client.setBufferSize(1512);
   delay(1500);
 
-
-  //leds
-  Serial.println(F("LED Animations setup..."));
-  led_animations.setup();
   //comms setup
   Serial.println(F("Comms setup..."));
-  field_comms.setup((const char*)unique_id, &client);
-  //laser
-  Serial.println(F("Laser Detector setup..."));
-
-  laser_detect.laser_init();
-
-  Serial.println(F("Trough setup..."));
-
-  trough_detect.trough_init();
-
-  Serial.println(F("Ball Detector setup..."));
-  // initialize the sensor pin as an input:
- 
-
-  ball_detect.ball_init(BALL_DROP_PIN);
-
+  byte* suuid = uuid.simpl_uuid;
+  field_comms.setup((const char*) suuid, &client);
 
   Serial.println(F("Setup Done begin loops..."));
 
   controller = new BAVRFieldController(&led_animations, &laser_detect,  &field_comms, &trough_detect, &ball_detect);
 
   delay(1500);
-  controller->setup(unique_id);
+  controller->setup((const char*)suuid);
   attachInterrupt(digitalPinToInterrupt(BALL_DROP_PIN), interruptPinBallDrop, FALLING);
-
-
 }
-
-
 
 void loop()
 {
-  //Serial.println(".");
+  // Serial.println(".");
   controller->loop();
-  //Serial.println(digitalRead(BALL_DROP_PIN));
-
+  // Serial.println(digitalRead(BALL_DROP_PIN));
 }
