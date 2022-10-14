@@ -16,10 +16,10 @@ void BAVRFieldController::laser_hit_message(int hits, int whichone) {
   // Produce a minified JSON document
   const int capacity = JSON_OBJECT_SIZE(4);
   StaticJsonDocument<capacity> doc;
-  char output[128];
+  char output[256];
   doc["num_hits"] = hits;
   doc["timestamp"] = 100000;
-  doc["node_id"] = (const char*)node_id;
+  doc["BUILDING_NAME"] = (const char*)node_id;
   doc["side_id"] = whichone + 1;
 
   serializeJson(doc, output);
@@ -44,7 +44,7 @@ void BAVRFieldController::ball_detect_message(int drops) {
   char output[128];
   doc["num_drops"] = drops;
   doc["timestamp"] = 100000;
-  doc["node_id"] = (const char*)node_id;
+  doc["BUILDING_NAME"] = (const char*)node_id;
   doc["side_id"] = 0;
 
   serializeJson(doc, output);
@@ -69,7 +69,7 @@ void BAVRFieldController::trough_detect_message(int bags) {
   char output[128];
   doc["num_bags"] = bags;
   doc["timestamp"] = 100000;
-  doc["node_id"] = (const char*)node_id;
+  doc["BUILDING_NAME"] = (const char*)node_id;
   doc["side_id"] = 0;
 
   serializeJson(doc, output);
