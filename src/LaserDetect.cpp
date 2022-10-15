@@ -116,7 +116,7 @@ uint32_t ts = millis()-lasttrigger;
       lasttrigger = millis();
       hastriggered = whichone;
       if (hastriggered>-1) {
-        Serial.print(F("XXXXXXXXXXXXXXXX LASER HIT XXX Time Since (ms):")); Serial.println(ts);
+        Serial.println(F(""));Serial.print(F("XXXXXXXXXXXXXXXX LASER HIT XXX Time Since (ms):")); Serial.println(ts);
     } 
   } else {
     hastriggered = -1;
@@ -146,7 +146,7 @@ int8_t LaserDetect::laser_detect() {
 
     //Serial.println(" ");Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.println(" K - ");
     //Serial.print("C: "); Serial.print(c, DEC); Serial.print(" - ");
-    //Serial.print("LUx: "); Serial.print(lux); Serial.print(" - ");
+   // Serial.print("LUx: "); Serial.print(lux); Serial.print(" - ");
     //Serial.print("R: "); Serial.print(r, DEC); Serial.print(" -");
     //Serial.print("G: "); Serial.print(g, DEC); Serial.print(" -");
     //Serial.print("B: "); Serial.print(b, DEC); Serial.print(" -");
@@ -161,10 +161,16 @@ int8_t LaserDetect::laser_detect() {
     if (dff_temp>MAX_TEMP_DIFF) {
       Serial.println(F(" "));
       Serial.print(F("Sensor# ["));Serial.print(i);Serial.print(F("] DIFF K: ")); Serial.print(dff_temp); Serial.print(" raw:"); Serial.print(colorTemp);
-
+      Serial.println(F(" lux:")); Serial.print(lux);
       laser_trigger(i);
       return i;
-    }
+    } else if (dff_temp>100) {
+      Serial.println(F(" "));
+      Serial.print(F("-----Sensor# ["));Serial.print(i);Serial.print(F("] DIFF K: ")); Serial.print(dff_temp); Serial.print(" raw:"); Serial.print(colorTemp);
+      Serial.println(F("    ---lux:")); Serial.print(lux);
+
+    } 
+
   
   }
   // no sensors detected -- only one needs to get detected above
