@@ -1,5 +1,4 @@
 #include "BallDetect.hpp"
-#include <Wire.h>
 
 BallDetect::BallDetect()
 {
@@ -7,6 +6,8 @@ BallDetect::BallDetect()
 
 void BallDetect::ball_init(int pin) {
   this->pin = pin;
+  pinMode(pin, INPUT_PULLUP);
+  digitalWrite(pin, HIGH); // turn on the pullup
 }
 
 int BallDetect::get_pin() {

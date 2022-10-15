@@ -6,8 +6,8 @@
 
 
 
-#define DATA_PIN_WALL_1 5
-#define NUM_LEDS_PER_WINDOW 20
+#define DATA_PIN_WALL_1 A0
+#define NUM_LEDS_PER_WINDOW 24
 
 class LEDAnimations
 {

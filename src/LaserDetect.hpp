@@ -43,7 +43,7 @@ private:
     uint32_t lasttrigger = 0;
 
     //TODO: Change this to 4 when you have them all plugged in!
-    const int8_t NUM_SENSORS = 4;
+    const int8_t NUM_SENSORS = 1;
 
 };
 
