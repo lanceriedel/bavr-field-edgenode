@@ -9,6 +9,8 @@ BAVRFieldController::BAVRFieldController(LEDAnimations* led_animations, LaserDet
     this->field_comms = field_comms;
     this->trough_detect = trough_detect;
     this->ball_detect = ball_detect;
+
+    strcpy(node_id, "unnamed-bldg");
 }
 
 void BAVRFieldController::laser_hit_message(int hits, int whichone) {
@@ -31,7 +33,7 @@ void BAVRFieldController::laser_hit_message(int hits, int whichone) {
   strcpy(buff2,"edgenode/laserhit/");
   strcat(buff2,node_id);
 
-  Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
+  //Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
 
   field_comms->message(buff2,(const char*)output);
 }
@@ -56,7 +58,7 @@ void BAVRFieldController::ball_detect_message(int drops) {
   strcpy(buff2,"edgenode/balldrop/");
   strcat(buff2,node_id);
 
-  Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
+  //Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
 
   field_comms->message(buff2,(const char*)output);
 }
@@ -81,7 +83,9 @@ void BAVRFieldController::trough_detect_message(int bags) {
   strcpy(buff2,"edgenode/troughbags/");
   strcat(buff2,node_id);
 
-  Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
+  // led_animations->windows[1].on_fire = !led_animations->windows[1].on_fire;
+
+  //Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
 
   field_comms->message(buff2,(const char*)output);
 }
@@ -162,7 +166,7 @@ void BAVRFieldController::callback(char* topic, byte* payload, unsigned int leng
   }
 
 if (prefix("nodered/reset/match",topic)) {
-        
+
         Serial.print(F("Node id  reset: ")); Serial.println(node_id);
         //now that we know who we are, subscribe to our nodeid
         reset_all();
@@ -178,7 +182,7 @@ if (prefix("nodered/reset/match",topic)) {
 
   if (prefix("nodered/reset/match",topic)) {
     reset_match();
-  }    
+  }
 }
 
 void BAVRFieldController::event_trigger(const char* event, int whichone) {
@@ -203,7 +207,7 @@ void BAVRFieldController::event_trigger(const char* event, int whichone) {
 
 ///Everybody do a loop   -- make sure no one is hogging the one thread please!!
 void BAVRFieldController::loop() {
-  
+
   field_comms->loop();
   trough_detect->trough_detect();
 
@@ -211,7 +215,8 @@ void BAVRFieldController::loop() {
   if (trigger>=0) {
     event_trigger("laser",trigger);
   }
-  led_animations->ledanimate();
+
+  led_animations->loop();
 
   if(trough_detect->triggered())
     event_trigger("trough",0);
