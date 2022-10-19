@@ -27,7 +27,7 @@ UUID uuid;
 EthernetClient ethClient;
 PubSubClient client(ethClient);
 BAVRFieldComms field_comms;
-IPAddress server(192, 168, 1, 113); // MQTT server
+IPAddress server(192, 168, 1, 112); // MQTT server
 
 // for leds
 LEDAnimations led_animations;
@@ -97,8 +97,9 @@ void setup()
   trough_detect.trough_init();
 
   Serial.println(F("Pubsub setup..."));
+
   // pubsub init
-  client.setServer(server, 18830);
+  client.setServer(server, 1883);
   client.setCallback(callback);
   client.setBufferSize(1512);
   delay(1500);
