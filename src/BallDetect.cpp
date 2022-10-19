@@ -15,9 +15,9 @@ int BallDetect::get_pin() {
 }
 
 void BallDetect::ball_trigger() {
-    Serial.println(F("Ball Triggered true"));
+    // Serial.println(F("Ball Triggered true"));
     if (millis()-lasttrigger > MAX_WAIT) {
-      Serial.println(F("XXXXXXXXXXXXXXXX BALL DROP X"));
+      // Serial.println(F("XXXXXXXXXXXXXXXX BALL DROP X"));
 
       lasttrigger = millis();
       hastriggered = true;

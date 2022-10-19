@@ -23,8 +23,6 @@ void BAVRFieldComms::reconnect() {
     if (client->connect("node-avrfield2")) {
       Serial.println("connected");
       client->subscribe("nodered/initialization/#");
-      client->subscribe("windowon");
-      client->subscribe("windowoff");
       delay(1000);
 
     } else {
