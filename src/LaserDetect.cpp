@@ -12,10 +12,10 @@ LaserDetect::LaserDetect()
 
 void tcaselect(uint8_t i) {
   if (i > 7) return;
- 
+
   Wire.beginTransmission(TCAADDR);
   Wire.write(1 << i);
-  Wire.endTransmission();  
+  Wire.endTransmission();
 }
 
 void LaserDetect::reset() {
@@ -138,7 +138,7 @@ int8_t LaserDetect::laser_detect() {
     tcaselect(i);
     uint16_t r, g, b, c, colorTemp;
     int32_t lux;
-    
+
     tcs[i].getRawData(&r, &g, &b, &c);
     // colorTemp = tcs.calculateColorTemperature(r, g, b);
     colorTemp = tcs[i].calculateColorTemperature_dn40(r, g, b, c);

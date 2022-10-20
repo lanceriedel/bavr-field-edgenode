@@ -19,11 +19,15 @@ void BAVRFieldComms::reconnect() {
   while (!client->connected()) {
     Serial.print(F("Attempting MQTT connection..."));
 
+    //give unique mqtt id
+    char mqtt_id[24];
+    strcpy(mqtt_id, "node-");
+    strcat(mqtt_id, unique_id);
+
     // Attempt to connect
-    if (client->connect("node-avrfield2")) {
+    if (client->connect((const char*) mqtt_id)) {
       Serial.println("connected");
-      client->subscribe("nodered/initialization/#");
-      delay(1000);
+      // client->subscribe("nodered/initialization/#");
 
     } else {
       Serial.print("failed, rc=");
@@ -38,10 +42,13 @@ void BAVRFieldComms::reconnect() {
   }
 }
 
+boolean BAVRFieldComms::connected() {
+  return client->connected();
+}
 
 boolean BAVRFieldComms::setup(const char* unique_id, PubSubClient* client) {
     this->client = client;
-     if (!client->connected()) {
+     if (!connected()) {
       reconnect();
       delay(1150);
     }
@@ -50,9 +57,7 @@ boolean BAVRFieldComms::setup(const char* unique_id, PubSubClient* client) {
 
 }
 
-boolean BAVRFieldComms::connected() {
-  return client->connected();
-}
+
 
 
 boolean BAVRFieldComms::message(const char* topic, const char* messagestr) {
@@ -61,7 +66,7 @@ boolean BAVRFieldComms::message(const char* topic, const char* messagestr) {
   return true;
 }
 
-boolean BAVRFieldComms::loop() {
+void BAVRFieldComms::loop() {
     if (!client->connected()) {
       reconnect();
     }
