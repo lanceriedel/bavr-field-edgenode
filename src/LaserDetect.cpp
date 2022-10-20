@@ -165,10 +165,10 @@ int8_t LaserDetect::laser_detect() {
       laser_trigger(i);
       return i;
     } else if (dff_temp>100) {
-      Serial.println(F(" "));
+      /* Serial.println(F(" "));
       Serial.print(F("-----Sensor# ["));Serial.print(i);Serial.print(F("] DIFF K: ")); Serial.print(dff_temp); Serial.print(" raw:"); Serial.print(colorTemp);
       Serial.println(F("    ---lux:")); Serial.print(lux);
-
+ */
     } 
 
   

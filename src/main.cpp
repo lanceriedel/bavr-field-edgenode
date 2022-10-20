@@ -81,8 +81,8 @@ void setup()
   delay(1500); // Allow the hardware to sort itself out
 
   // set up the LED animations
- // Serial.println(F("LED Animations setup..."));
-  //led_animations.setup();
+  Serial.println(F("LED Animations setup..."));
+  led_animations.setup();
 
   // set up the ball detector
   //Serial.println(F("Ball Detector setup..."));
