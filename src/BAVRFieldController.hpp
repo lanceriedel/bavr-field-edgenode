@@ -6,6 +6,7 @@
 #include "LaserDetect.hpp"
 #include "TroughDetect.hpp"
 #include "BallDetect.hpp"
+#include <ArduinoJson.h>
 
 class BAVRFieldController
 {
@@ -24,6 +25,7 @@ public:
 
     void subscribe_all();
     void reset_all();
+    void clean_buffers();
 
 
 
@@ -34,6 +36,9 @@ private:
     TroughDetect* trough_detect;
     BallDetect* ball_detect;
     char node_id[128];
+    StaticJsonDocument<512> json;
+    char topic[256];
+    char message[512];
 
     uint16_t current_fire_score = 0;
 };

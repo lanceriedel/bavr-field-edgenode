@@ -37,7 +37,7 @@ boolean TroughDetect::triggered() {
 }
 
 void TroughDetect::trough_trigger() {
-    
+
     hastriggered = true;
     Serial.print("Triggered bag in trough:"); Serial.println(num_bags);
 
@@ -60,15 +60,13 @@ int TroughDetect::trough_detect() {
 
     long diff = bgw-last_weight;
 
-    
-  
     if (diff>threshold) {
-        Serial.print("Trough detect:"); 
+        Serial.print("Trough detect:");
         Serial.println(bgw);
-        Serial.print("last weight :"); 
+        Serial.print("last weight :");
         Serial.println(last_weight);
 
-        Serial.print("DIFF weight :"); 
+        Serial.print("DIFF weight :");
         Serial.println(diff);
 
         num_bags=((bgw+(threshold/2))/bag_weight)>max_bags?max_bags:((bgw+(threshold/2))/bag_weight);
