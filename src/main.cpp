@@ -108,7 +108,7 @@ void setup()
   byte *suuid = uuid.simpl_uuid;
   field_comms.setup((const char *)suuid, &client);
 
-  Serial.println(F("Setup Done begin loops..."));
+  Serial.println(F("Setup Done begin loops...")); 
 
   controller = new BAVRFieldController(&led_animations, &laser_detect, &field_comms, &trough_detect, &ball_detect);
 

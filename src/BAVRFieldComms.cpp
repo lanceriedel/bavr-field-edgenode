@@ -20,7 +20,8 @@ void BAVRFieldComms::reconnect() {
     Serial.print(F("Attempting MQTT connection..."));
 
     // Attempt to connect
-    if (client->connect("node-avrfield2")) {
+
+    if (client->connect(unique_id)) {
       Serial.println("connected");
       client->subscribe("nodered/initialization/#");
       delay(1000);
@@ -41,11 +42,12 @@ void BAVRFieldComms::reconnect() {
 
 boolean BAVRFieldComms::setup(const char* unique_id, PubSubClient* client) {
     this->client = client;
+    this->unique_id = unique_id;
+
      if (!client->connected()) {
       reconnect();
       delay(1150);
     }
-    this->unique_id = unique_id;
     return true;
 
 }
