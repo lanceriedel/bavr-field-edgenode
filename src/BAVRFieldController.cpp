@@ -24,7 +24,7 @@ void BAVRFieldController::laser_hit_message(int hits, int whichone)
 
   clean_buffers(); // clean buffers before use
   json["num_hits"] = hits;
-  json["timestamp"] = 100000;
+  json["timestamp"] = millis();
   json["BUILDING_NAME"] = (const char *)node_id;
   json["side_id"] = whichone + 1;
 
@@ -43,7 +43,7 @@ void BAVRFieldController::ball_detect_message(int drops)
 
   clean_buffers(); // clean buffers before use
   json["num_drops"] = drops;
-  json["timestamp"] = 100000;
+  json["timestamp"] = millis();
   json["BUILDING_NAME"] = (const char *)node_id;
   json["side_id"] = 0;
 
@@ -62,7 +62,7 @@ void BAVRFieldController::trough_detect_message(int bags)
 
   clean_buffers(); // clean buffers before use
   json["num_bags"] = bags;
-  json["timestamp"] = 100000;
+  json["timestamp"] = millis();
   json["BUILDING_NAME"] = (const char *)node_id;
   json["side_id"] = 0;
 
@@ -263,14 +263,14 @@ boolean BAVRFieldController::setup(const char *unique_id)
   strcat(topic, node_id);
   field_comms->subscribe(topic);
 
-  // Hand build JSON for now
   // Send request for initialization params (mostly node id)
   clean_buffers();
 
-  strcpy(topic, "{\"uuid\":\"");
-  strcat(topic, unique_id);
-  strcat(topic, "\", \"timestamp\":10000000}");
+  json["uuid"] = unique_id;
+  json["timestamp"] = millis();
 
-  field_comms->message("edgenode/initialization", (const char *)topic);
+  serializeJson(json, message);
+
+  field_comms->message("edgenode/initialization", (const char *) message);
   return true;
 }
