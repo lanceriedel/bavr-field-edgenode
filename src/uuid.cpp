@@ -7,7 +7,7 @@ UUID::UUID()
 
 void UUID::init()
 {
-    byte init_char = EEPROM.read(0);
+    // byte init_char = EEPROM.read(0);
     // if (init_char == 0xFF)
     // {
     //     //we have never run before, gen uuid
@@ -15,12 +15,11 @@ void UUID::init()
     //     write_uuid();
     //     EEPROM.write(0, 127);
     // }
-    fetch_uuid(); //this isnt strictly necessary but whatevs
+    fetch_uuid();
     pretty_uuid();
 }
 
 void UUID::generate_uuid()
-//pass in a byte array as &var and let the function modify the array in place
 {
     randomSeed(analogRead(7)*analogRead(6)*analogRead(5)+micros());
     long unitId = random();
@@ -39,14 +38,14 @@ void UUID::generate_uuid()
 
 void UUID::write_uuid()
 {
-    EEPROM.write(1, uuid[0]);
-    EEPROM.write(2, uuid[1]);
-    EEPROM.write(3, uuid[2]);
-    EEPROM.write(4, uuid[3]);
-    EEPROM.write(5, uuid[4]);
-    EEPROM.write(6, uuid[5]);
-    EEPROM.write(7, uuid[6]);
-    EEPROM.write(8, uuid[7]);
+    EEPROM.write(0, uuid[0]);
+    EEPROM.write(1, uuid[1]);
+    EEPROM.write(2, uuid[2]);
+    EEPROM.write(3, uuid[3]);
+    EEPROM.write(4, uuid[4]);
+    EEPROM.write(5, uuid[5]);
+    EEPROM.write(6, uuid[6]);
+    EEPROM.write(7, uuid[7]);
 }
 
 void UUID::fetch_uuid()
