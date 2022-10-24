@@ -27,7 +27,7 @@ UUID uuid;
 EthernetClient ethClient;
 PubSubClient client(ethClient);
 BAVRFieldComms field_comms;
-IPAddress server(192, 168, 1, 113); // MQTT server
+IPAddress server(192, 168, 1, 112); // MQTT server
 
 // for leds
 LEDAnimations led_animations;
@@ -85,20 +85,20 @@ void setup()
   led_animations.setup();
 
   // set up the ball detector
-  Serial.println(F("Ball Detector setup..."));
-  ball_detect.ball_init(BALL_DROP_PIN);
+  //Serial.println(F("Ball Detector setup..."));
+  //ball_detect.ball_init(BALL_DROP_PIN);
 
   // set up the laser detector
   Serial.println(F("Laser Detector setup..."));
   laser_detect.laser_init();
 
   // set up the scale (trough)
-  Serial.println(F("Trough setup..."));
-  trough_detect.trough_init();
+ // Serial.println(F("Trough setup..."));
+ // trough_detect.trough_init();
 
   Serial.println(F("Pubsub setup..."));
   // pubsub init
-  client.setServer(server, 18830);
+  client.setServer(server, 1883);
   client.setCallback(callback);
   client.setBufferSize(1512);
   delay(1500);
@@ -108,7 +108,7 @@ void setup()
   byte *suuid = uuid.simpl_uuid;
   field_comms.setup((const char *)suuid, &client);
 
-  Serial.println(F("Setup Done begin loops..."));
+  Serial.println(F("Setup Done begin loops...")); 
 
   controller = new BAVRFieldController(&led_animations, &laser_detect, &field_comms, &trough_detect, &ball_detect);
 

@@ -82,10 +82,10 @@ void LaserDetect::laser_init() {
     tcaselect(i);
 
     if (tcs[i].begin()) {
-      Serial.println("Found sensor");
+      Serial.println(F("Found sensor"));
     } else {
-      Serial.print("No TCS34725 found ... check your connections [");Serial.print(i);Serial.println("]");
-      while (1);
+      Serial.print(F("No TCS34725 found ... check your connections ["));Serial.print(i);Serial.println(F("]"));
+     // while (1);
     }
   }
 
@@ -165,10 +165,10 @@ int8_t LaserDetect::laser_detect() {
       laser_trigger(i);
       return i;
     } else if (dff_temp>100) {
-      Serial.println(F(" "));
+      /* Serial.println(F(" "));
       Serial.print(F("-----Sensor# ["));Serial.print(i);Serial.print(F("] DIFF K: ")); Serial.print(dff_temp); Serial.print(" raw:"); Serial.print(colorTemp);
       Serial.println(F("    ---lux:")); Serial.print(lux);
-
+ */
     } 
 
   

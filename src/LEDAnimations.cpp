@@ -105,6 +105,11 @@ Building::Building()
 }
 void Building::set_active_windows(uint8_t side, uint8_t windows)
 {
+  Serial.print(F("Trying to set window "));
+  Serial.print(side);
+  Serial.print(F(" to "));
+  Serial.println(windows);
+
   if (side > 0)
   {
     side--; //convert for 0 indexing

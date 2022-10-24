@@ -48,11 +48,11 @@ boolean BAVRFieldComms::connected() {
 
 boolean BAVRFieldComms::setup(const char* unique_id, PubSubClient* client) {
     this->client = client;
-     if (!connected()) {
+    this->unique_id = unique_id;
+    if (!connected()) {
       reconnect();
       delay(1150);
     }
-    this->unique_id = unique_id;
     return true;
 
 }
