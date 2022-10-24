@@ -8,13 +8,13 @@ UUID::UUID()
 void UUID::init()
 {
     byte init_char = EEPROM.read(0);
-    if (init_char == 0xFF)
-    {
-        //we have never run before, gen uuid
-        generate_uuid();
-        write_uuid();
-        EEPROM.write(0, 127);
-    }
+    // if (init_char == 0xFF)
+    // {
+    //     //we have never run before, gen uuid
+    //     generate_uuid();
+    //     write_uuid();
+    //     EEPROM.write(0, 127);
+    // }
     fetch_uuid(); //this isnt strictly necessary but whatevs
     pretty_uuid();
 }
@@ -51,14 +51,14 @@ void UUID::write_uuid()
 
 void UUID::fetch_uuid()
 {
-    uuid[0] = EEPROM.read(1);
-    uuid[1] = EEPROM.read(2);
-    uuid[2] = EEPROM.read(3);
-    uuid[3] = EEPROM.read(4);
-    uuid[4] = EEPROM.read(5);
-    uuid[5] = EEPROM.read(6);
-    uuid[6] = EEPROM.read(7);
-    uuid[7] = EEPROM.read(8);
+    uuid[0] = EEPROM.read(0);
+    uuid[1] = EEPROM.read(1);
+    uuid[2] = EEPROM.read(2);
+    uuid[3] = EEPROM.read(3);
+    uuid[4] = EEPROM.read(4);
+    uuid[5] = EEPROM.read(5);
+    uuid[6] = EEPROM.read(6);
+    uuid[7] = EEPROM.read(7);
 }
 
 void UUID::pretty_uuid()
@@ -68,15 +68,15 @@ void UUID::pretty_uuid()
   memset(b, 0, 8);
   memset(simpl_uuid, 0, 32);
 
-  snprintf(b, 8, "%lX",(long)EEPROM.read(1));  //read a single byte from EEPROM, interpret as ul (4 bytes), write to b
+  snprintf(b, 8, "%lX",(long)EEPROM.read(0));  //read a single byte from EEPROM, interpret as ul (4 bytes), write to b
   strcpy((char*)simpl_uuid, b);               //copy b into simpl_uuid
+  memset(b, 0, 8);                             //clear b
+  snprintf(b, 8, "%lX",(long)EEPROM.read(1));  //read a single byte from EEPROM, interpret as ul (4 bytes), write to b
+  strcat((char*)simpl_uuid, b);               //concat b onto simpl_uuid
   memset(b, 0, 8);                             //clear b
   snprintf(b, 8, "%lX",(long)EEPROM.read(2));  //read a single byte from EEPROM, interpret as ul (4 bytes), write to b
   strcat((char*)simpl_uuid, b);               //concat b onto simpl_uuid
   memset(b, 0, 8);                             //clear b
   snprintf(b, 8, "%lX",(long)EEPROM.read(3));  //read a single byte from EEPROM, interpret as ul (4 bytes), write to b
-  strcat((char*)simpl_uuid, b);               //concat b onto simpl_uuid
-  memset(b, 0, 8);                             //clear b
-  snprintf(b, 8, "%lX",(long)EEPROM.read(4));  //read a single byte from EEPROM, interpret as ul (4 bytes), write to b
   strcat((char*)simpl_uuid, b);               //concat b onto simpl_uuid
 }
