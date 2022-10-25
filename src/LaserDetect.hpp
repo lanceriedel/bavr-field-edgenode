@@ -13,6 +13,8 @@ public:
     void calibrate() ;
     void reset();
     void set_diff(uint16_t diff);
+    uint16_t * get_lastest_readings();
+    uint32_t * get_lastest_avgk();
    // int8_t triggered();
 
 private:
@@ -42,6 +44,7 @@ private:
     uint8_t hastriggered = -1;
     int MAX_WAIT =500;
     uint32_t lasttrigger = 0;
+    uint16_t last_temp[4]={0,0,0,0};
 
     //TODO: Change this to 4 when you have them all plugged in!
     const int8_t NUM_SENSORS = 4;

@@ -97,6 +97,15 @@ void LaserDetect::set_diff(uint16_t diff) {
   this->MAX_TEMP_DIFF = diff;
 }
 
+
+uint16_t * LaserDetect::get_lastest_readings() {
+    return last_temp;
+}
+
+uint32_t * LaserDetect::get_lastest_avgk() {
+    return avg_k;
+}
+
 // //Too keep things clean, we are going to check this on the controller loop and clear
 // int8_t LaserDetect::triggered() {
 //   if (millis()-lasttrigger > MAX_WAIT) {
@@ -147,6 +156,8 @@ int8_t LaserDetect::laser_detect() {
     // colorTemp = tcs.calculateColorTemperature(r, g, b);
     colorTemp = tcs[i].calculateColorTemperature_dn40(r, g, b, c);
     lux = tcs[i].calculateLux(r, g, b);
+    
+    last_temp[i] = colorTemp;
 
     //Serial.println(" ");Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.println(" K - ");
     //Serial.print("C: "); Serial.print(c, DEC); Serial.print(" - ");

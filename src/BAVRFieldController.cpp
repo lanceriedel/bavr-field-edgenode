@@ -38,6 +38,34 @@ void BAVRFieldController::laser_hit_message(int hits, int whichone)
   field_comms->message(topic, (const char *)message);
 }
 
+void BAVRFieldController::laser_last_raw_reading_message()
+{
+
+  clean_buffers(); // clean buffers before use
+  uint32_t * avgk = laser_detect->get_lastest_avgk();
+  uint16_t * latest_readings = laser_detect->get_lastest_readings();
+  
+  json["bldg"] = (const char *)node_id;
+  json["k_1"] = avgk[0];
+  json["k_2"] = avgk[1];
+  json["k_3"] = avgk[2];
+  json["k_4"] = avgk[3];
+
+  json["r_1"] = latest_readings[0];
+  json["r_2"] = latest_readings[1];
+  json["r_3"] = latest_readings[2];
+  json["r_4"] = latest_readings[3];
+
+  serializeJson(json, message);
+
+  strcpy(topic, "edgenode/laserconfig/");
+  strcat(topic, node_id);
+
+  // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
+
+  field_comms->message(topic, (const char *)message);
+}
+
 void BAVRFieldController::ball_detect_message(int drops)
 {
 
@@ -222,7 +250,9 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     int newdiff = json["DETECTOR_DIFF"];
     Serial.println(F("DETECTOR_DIFF:"));
     Serial.println(newdiff);
+    
     laser_detect->set_diff(newdiff);
+    laser_last_raw_reading_message();
   }
 }
 

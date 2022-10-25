@@ -20,6 +20,7 @@ public:
     void laser_hit_message(int hits, int whichone);
     void ball_detect_message(int drops);
     void trough_detect_message(int bags);
+    void laser_last_raw_reading_message();
 
     void interrupt(int pin);
 
