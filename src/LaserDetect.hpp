@@ -12,6 +12,7 @@ public:
     int8_t laser_detect();
     void calibrate() ;
     void reset();
+    void set_diff(uint16_t diff);
    // int8_t triggered();
 
 private:
@@ -37,7 +38,7 @@ private:
     //uint32_t avg_r=0;
     uint32_t avg_r[4]={0,0,0,0};
 
-    const int32_t MAX_TEMP_DIFF=400;
+    int32_t MAX_TEMP_DIFF=400;
     uint8_t hastriggered = -1;
     int MAX_WAIT =500;
     uint32_t lasttrigger = 0;

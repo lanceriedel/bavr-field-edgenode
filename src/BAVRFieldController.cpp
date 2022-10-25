@@ -100,6 +100,15 @@ void BAVRFieldController::subscribe_all()
   Serial.print(F("Subscribed to:"));
   Serial.println(topic);
 
+  clean_buffers();
+  
+  strcpy(topic, "nodered/laserdiff");
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
+
+
   // Subscribe to all messages for this
 }
 
@@ -196,6 +205,24 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
       int activeWindows = json["activeWindows"];
       led_animations->building.set_active_windows(side, activeWindows);
     }
+  }
+
+  if (prefix("nodered/laserdiff", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+
+    // Test if parsing succeeds.
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+
+    int newdiff = json["DETECTOR_DIFF"];
+    Serial.println(F("DETECTOR_DIFF:"));
+    Serial.println(newdiff);
+    laser_detect->set_diff(newdiff);
   }
 }
 

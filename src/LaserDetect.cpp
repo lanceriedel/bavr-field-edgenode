@@ -93,6 +93,10 @@ void LaserDetect::laser_init() {
   
 }
 
+void LaserDetect::set_diff(uint16_t diff) {
+  this->MAX_TEMP_DIFF = diff;
+}
+
 // //Too keep things clean, we are going to check this on the controller loop and clear
 // int8_t LaserDetect::triggered() {
 //   if (millis()-lasttrigger > MAX_WAIT) {
