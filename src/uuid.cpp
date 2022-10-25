@@ -7,7 +7,7 @@ UUID::UUID()
 
 void UUID::init()
 {
-    byte init_char = EEPROM.read(0);
+   // byte init_char = EEPROM.read(0);
     // if (init_char == 0xFF)
     // {
     //     //we have never run before, gen uuid

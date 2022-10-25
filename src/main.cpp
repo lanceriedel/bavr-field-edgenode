@@ -68,10 +68,11 @@ void setup()
 
   // set up ethernet
   Serial.println(F("Ethernet setup..."));
+  byte macheader[3] = {0x90, 0xA2, 0xDA};
   byte mac[] = {
-      uuid.uuid[0],
-      uuid.uuid[1],
-      uuid.uuid[2],
+      macheader[0],
+      macheader[1],
+      macheader[2],
       uuid.uuid[3],
       uuid.uuid[4],
       uuid.uuid[5]};
