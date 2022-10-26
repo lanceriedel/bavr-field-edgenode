@@ -66,6 +66,25 @@ void BAVRFieldController::laser_last_raw_reading_message()
   field_comms->message(topic, (const char *)message);
 }
 
+void BAVRFieldController::last_weight_tare_reading_message()
+{
+
+  clean_buffers(); // clean buffers before use
+  long last_stable_tare = trough_detect->get_last_weight_stable();
+  
+  json["bldg"] = (const char *)node_id;
+  json["weight_tare"] = last_stable_tare;
+ 
+  serializeJson(json, message);
+
+  strcpy(topic, "edgenode/latesttare/");
+  strcat(topic, node_id);
+
+  // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
+
+  field_comms->message(topic, (const char *)message);
+}
+
 void BAVRFieldController::ball_detect_message(int drops)
 {
 
@@ -135,6 +154,13 @@ void BAVRFieldController::subscribe_all()
   Serial.print(F("Subscribed to:"));
   Serial.println(topic);
 
+  clean_buffers();
+  
+  strcpy(topic, "nodered/weighttare");
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
 
 
   // Subscribe to all messages for this
@@ -193,7 +219,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     current_fire_score = newfirescore;
   }
 
-  if (prefix("nodered/reset/match", topic))
+  else if (prefix("nodered/reset/match", topic))
   {
 
     Serial.print(F("Node id  reset: "));
@@ -202,7 +228,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     reset_all();
   }
 
-  if (prefix("nodered/initialization", topic))
+  else if (prefix("nodered/initialization", topic))
   {
     memset(node_id, 0, 128);
     strcpy(node_id, message); // TODO - this should probably be dersialized as json object vs a raw string
@@ -212,12 +238,12 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     subscribe_all();
   }
 
-  if (prefix("nodered/reset/match", topic))
+  else if (prefix("nodered/reset/match", topic))
   {
     reset_match();
   }
 
-  if (prefix("nodered/updatewindow/", topic))
+  else if (prefix("nodered/updatewindow/", topic))
   {
     DeserializationError error = deserializeJson(json, message);
     // Test if parsing succeeds.
@@ -235,7 +261,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     }
   }
 
-  if (prefix("nodered/laserdiff", topic))
+  else if (prefix("nodered/laserdiff", topic))
   {
     DeserializationError error = deserializeJson(json, message);
 
@@ -253,6 +279,20 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     
     laser_detect->set_diff(newdiff);
     laser_last_raw_reading_message();
+  }
+
+  else if (prefix("nodered/weighttare", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+
+    // Test if parsing succeeds.
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+    last_weight_tare_reading_message();
   }
 }
 

@@ -21,6 +21,7 @@ public:
     void ball_detect_message(int drops);
     void trough_detect_message(int bags);
     void laser_last_raw_reading_message();
+    void last_weight_tare_reading_message();
 
     void interrupt(int pin);
 

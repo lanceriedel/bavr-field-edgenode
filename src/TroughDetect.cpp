@@ -15,6 +15,9 @@ void TroughDetect::trough_init() {
    // FastLED.addLeds<WS2812, LED_PIN_TROUGH, GRB>(trough_leds[0], NUM_TROUGH_LED);
 }
 
+long TroughDetect::get_last_weight_stable() {
+    return last_weight_stable;
+}
 int TroughDetect::bag_num() {
    return num_bags;
 }
@@ -56,15 +59,25 @@ int TroughDetect::trough_detect() {
 
 
     long bgw=abs(wtsns.read());
+    long diff_reading = bgw-last_weight;
+    if (diff_reading>threshold_stablized) {
+        Serial.print("Unstable Trough reading:");
+        Serial.println(bgw);
+        Serial.print("last reading :");
+        Serial.println(last_weight);
+        last_weight=bgw;
+        return 0;
+    }
 
 
-    long diff = bgw-last_weight;
+
+    long diff = bgw-last_weight_stable;
 
     if (diff>threshold) {
         Serial.print("Trough detect:");
         Serial.println(bgw);
         Serial.print("last weight :");
-        Serial.println(last_weight);
+        Serial.println(last_weight_stable);
 
         Serial.print("DIFF weight :");
         Serial.println(diff);
@@ -73,7 +86,8 @@ int TroughDetect::trough_detect() {
         trough_trigger();
     }
 
-    last_weight=bgw;
+    last_weight_stable=bgw;
+
 
     return num_bags;
 }
