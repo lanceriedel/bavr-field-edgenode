@@ -5,6 +5,7 @@ void BAVRFieldController::clean_buffers()
 {
   memset(topic, 0, sizeof(topic));
   memset(message, 0, sizeof(message));
+  memset(uuid, 0, sizeof(uuid));
   json.clear();
 }
 
@@ -161,6 +162,13 @@ void BAVRFieldController::subscribe_all()
   Serial.print(F("Subscribed to:"));
   Serial.println(topic);
 
+  clean_buffers();
+  strcpy(topic, "nodered/updatewindow/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
 
 
   // Subscribe to all messages for this
@@ -186,12 +194,19 @@ void BAVRFieldController::interrupt(int pin)
 // Handle all of the MQTT Messages -- they are being handed off to the controller to do the work
 void BAVRFieldController::callback(char *topic, byte *payload, unsigned int length)
 {
-  Serial.print(F("Message arrived ["));
-  Serial.print((topic));
-  Serial.print(F("] "));
-  Serial.println(length);
+
+
+  bool valid_message = false;
 
   clean_buffers(); // clean buffers before use
+  char uuid_initialization_topic[256];
+  strcpy(uuid_initialization_topic, "nodered/initialization/");
+  strcat(uuid_initialization_topic, uuid);
+
+   clean_buffers(); // clean buffers before use
+  char update_window_topic[256];
+  strcpy(update_window_topic, "nodered/updatewindow/");
+  strcat(update_window_topic, node_id);
 
   // this block is needed apparently to deserialized because payload may not be null terminated? not sure
   if (length > 0)
@@ -217,6 +232,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     Serial.println(F("FCS:"));
     Serial.println(newfirescore);
     current_fire_score = newfirescore;
+    valid_message = true;
   }
 
   else if (prefix("nodered/reset/match", topic))
@@ -226,9 +242,10 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     Serial.println(node_id);
     // now that we know who we are, subscribe to our nodeid
     reset_all();
+    valid_message = true;
   }
 
-  else if (prefix("nodered/initialization", topic))
+  else if (prefix(uuid_initialization_topic, topic))
   {
     memset(node_id, 0, 128);
     strcpy(node_id, message); // TODO - this should probably be dersialized as json object vs a raw string
@@ -236,14 +253,16 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     Serial.println(node_id);
     // now that we know who we are, subscribe to our nodeid
     subscribe_all();
+    valid_message = true;
   }
 
   else if (prefix("nodered/reset/match", topic))
   {
     reset_match();
+    valid_message = true;
   }
 
-  else if (prefix("nodered/updatewindow/", topic))
+  else if (prefix(update_window_topic, topic))
   {
     DeserializationError error = deserializeJson(json, message);
     // Test if parsing succeeds.
@@ -259,6 +278,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
       int activeWindows = json["activeWindows"];
       led_animations->building.set_active_windows(side, activeWindows);
     }
+    valid_message = true;
   }
 
   else if (prefix("nodered/laserdiff", topic))
@@ -279,6 +299,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     
     laser_detect->set_diff(newdiff);
     laser_last_raw_reading_message();
+    valid_message = true;
   }
 
   else if (prefix("nodered/weighttare", topic))
@@ -293,6 +314,15 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
       return;
     }
     last_weight_tare_reading_message();
+    valid_message = true;
+  }
+  if (valid_message) {
+    Serial.print(F("Message arrived ["));
+    Serial.print((topic));
+    Serial.print(F("] "));
+    Serial.println(length);
+  } else {
+    //do nothing, it was for someone else, and we don't want too much noise on this node
   }
 }
 
@@ -345,6 +375,7 @@ boolean BAVRFieldController::setup(const char *unique_id)
 {
   Serial.println(F("Controller setup..."));
   clean_buffers();
+  strcpy(uuid, unique_id);
   strcpy(topic, "nodered/initialization/");
   strcat(topic, unique_id);
   field_comms->subscribe(topic);

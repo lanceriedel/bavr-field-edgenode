@@ -41,6 +41,7 @@ private:
     StaticJsonDocument<512> json;
     char topic[256];
     char message[512];
+    char uuid[32];
 
     uint16_t current_fire_score = 0;
 };
