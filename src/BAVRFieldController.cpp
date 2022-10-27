@@ -6,7 +6,7 @@ void BAVRFieldController::clean_buffers()
 {
   memset(topic, 0, sizeof(topic));
   memset(message, 0, sizeof(message));
-  memset(uuid, 0, sizeof(uuid));
+  //memset(uuid, 0, sizeof(uuid));
   json.clear();
 }
 
@@ -245,7 +245,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
   {
     strncpy(message, (const char *)payload, length);
     message[length] = 0;
-    Serial.println(message);
+    
   }
 
   if (prefix("nodered/firescore/", topic))
@@ -277,8 +277,17 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     valid_message = true;
   }
 
-  else if (prefix(uuid_initialization_topic, topic))
+  else if (prefix(uuid_initialization_topic,topic))
   {
+    Serial.println(F("I'm in the else-if-prefix"));
+    Serial.print(F("The uuid_initialization_topic is "));
+    Serial.println(uuid_initialization_topic);
+    Serial.print(F("The shorter topic is "));
+    Serial.println(topic);
+    Serial.print(F("Currently, my node is "));
+    Serial.println(node_id);
+    Serial.print(F("The MQTT message is "));
+    Serial.println(message);
     memset(node_id, 0, 128);
     strcpy(node_id, message); // TODO - this should probably be dersialized as json object vs a raw string
     Serial.print(F("Node id initialized: "));
@@ -354,6 +363,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     Serial.print((topic));
     Serial.print(F("] "));
     Serial.println(length);
+    Serial.println(message);
   } else {
     //do nothing, it was for someone else, and we don't want too much noise on this node
   }
@@ -415,6 +425,7 @@ boolean BAVRFieldController::setup(const char *unique_id)
 {
   Serial.println(F("Controller setup..."));
   clean_buffers();
+  memset(uuid, 0, sizeof(uuid)); // took this from the original clean_buffers
   strcpy(uuid, unique_id);
   strcpy(topic, "nodered/initialization/");
   strcat(topic, unique_id);
