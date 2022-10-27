@@ -32,6 +32,7 @@ public:
 
 
 private:
+    void set_config();
     BAVRFieldComms* field_comms;
     LEDAnimations* led_animations;
     LaserDetect* laser_detect;

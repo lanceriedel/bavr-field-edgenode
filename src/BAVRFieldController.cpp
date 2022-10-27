@@ -1,4 +1,5 @@
 #include "BAVRFieldController.hpp"
+#include "config.hpp"
 
 
 void BAVRFieldController::clean_buffers()
@@ -139,6 +140,37 @@ void BAVRFieldController::reset_match()
   this->laser_detect->reset();
 }
 
+void BAVRFieldController::set_config() {
+  //arduino style -- brute force
+  if (strcmp(node_id, "RBO") == 0)
+    building_name_index = RBO;
+  if (strcmp(node_id, "RTO") == 0)
+    building_name_index = RTO;
+  if (strcmp(node_id, "RBM") == 0)
+    building_name_index = RBM;
+  if (strcmp(node_id, "RTM") == 0)
+    building_name_index = RTM;
+  if (strcmp(node_id, "RBI") == 0)
+    building_name_index = RBI;
+  if (strcmp(node_id, "RTI") == 0)
+    building_name_index = RTI;
+
+  if (strcmp(node_id, "LBI") == 0)
+    building_name_index = LBI;
+  if (strcmp(node_id, "LTI") == 0)
+    building_name_index = LTI;
+  if (strcmp(node_id, "LBM") == 0)
+    building_name_index = LBM;
+  if (strcmp(node_id, "LTM") == 0)
+    building_name_index = LTM;
+  if (strcmp(node_id, "LBO") == 0)
+    building_name_index = LBO;
+  if (strcmp(node_id, "LTO") == 0)
+    building_name_index = LTO;
+  
+
+}
+
 void BAVRFieldController::subscribe_all()
 {
   clean_buffers(); // clean buffers before use
@@ -252,6 +284,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     Serial.print(F("Node id initialized: "));
     Serial.println(node_id);
     // now that we know who we are, subscribe to our nodeid
+    set_config();
     subscribe_all();
     valid_message = true;
   }
@@ -354,21 +387,28 @@ void BAVRFieldController::loop()
 {
 
   field_comms->loop();
-  trough_detect->trough_detect();
+  if (building_name_index>-1 && config[building_name_index][TRENCH]==YES) {
+    trough_detect->trough_detect();
+  if (trough_detect->triggered())
+      event_trigger("trough", 0);
+  }
 
-  int8_t trigger = laser_detect->laser_detect();
-  if (trigger >= 0)
-  {
-    event_trigger("laser", trigger);
+  if (building_name_index>-1 && config[building_name_index][LASER]==YES) {
+    int8_t trigger = laser_detect->laser_detect();
+    if (trigger >= 0)
+    {
+      event_trigger("laser", trigger);
+    }
   }
 
   led_animations->loop();
 
-  if (trough_detect->triggered())
-    event_trigger("trough", 0);
+  
 
-  if (ball_detect->ball_detect())
-    event_trigger("ball", 0);
+  if (building_name_index>-1 && config[building_name_index][BALL]==YES) {
+    if (ball_detect->ball_detect())
+      event_trigger("ball", 0);
+    }
 }
 
 boolean BAVRFieldController::setup(const char *unique_id)
