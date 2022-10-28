@@ -1,4 +1,10 @@
+#ifndef config_h
+#define config_h
+#include <pins_arduino.h>
 //config.h
+
+//heater
+#define HEATER_PIN A2
 
 #define RBO  0
 #define RTO  1
@@ -44,6 +50,7 @@ const int config [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to zero
   {NO, YES, YES}          //LTO
 };
 
-int building_name_index = -1;
 
 
+
+#endif

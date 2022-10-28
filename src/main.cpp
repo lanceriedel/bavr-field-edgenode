@@ -10,7 +10,6 @@ NOTE -  no delays should be anywhere in the loops -- will work to make sure that
 #include <Ethernet.h>
 #include <PubSubClient.h>
 #include <Wire.h>
-
 #include "BallDetect.hpp"
 #include "TroughDetect.hpp"
 #include "LaserDetect.hpp"
@@ -41,6 +40,7 @@ LaserDetect laser_detect;
 
 // trough
 TroughDetect trough_detect;
+
 
 // Where the real work gets handed out
 BAVRFieldController *controller;
@@ -110,8 +110,10 @@ void setup()
   field_comms.setup((const char *)suuid, &client);
 
   Serial.println(F("Setup Done begin loops...")); 
+  pinMode(HEATER_PIN,OUTPUT);
 
   controller = new BAVRFieldController(&led_animations, &laser_detect, &field_comms, &trough_detect, &ball_detect);
+  controller->set_heater_pin(HEATER_PIN);
 
   delay(1500);
   controller->setup((const char *)suuid);

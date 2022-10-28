@@ -10,13 +10,16 @@ void BAVRFieldController::clean_buffers()
   json.clear();
 }
 
-BAVRFieldController::BAVRFieldController(LEDAnimations *led_animations, LaserDetect *laser_detect, BAVRFieldComms *field_comms, TroughDetect *trough_detect, BallDetect *ball_detect)
+BAVRFieldController::BAVRFieldController(LEDAnimations *led_animations, 
+LaserDetect *laser_detect, BAVRFieldComms *field_comms, TroughDetect *trough_detect, 
+BallDetect *ball_detect)
 {
   this->laser_detect = laser_detect;
   this->led_animations = led_animations;
   this->field_comms = field_comms;
   this->trough_detect = trough_detect;
   this->ball_detect = ball_detect;
+
 
   strcpy(node_id, "unnamed-bldg");
 }
@@ -201,6 +204,20 @@ void BAVRFieldController::subscribe_all()
   Serial.print(F("Subscribed to:"));
   Serial.println(topic);
 
+  clean_buffers();
+  strcpy(topic, "nodered/heateron/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/heateroff/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
 
 
   // Subscribe to all messages for this
@@ -212,6 +229,28 @@ void BAVRFieldController::reset_all()
   trough_detect->reset();
 
   // Subscribe to all messages for this
+}
+
+void BAVRFieldController::set_heater_pin(uint8_t p) {
+  this->heater_pin = p;
+}
+
+
+void BAVRFieldController::heater_on()
+{
+  Serial.print(F("Turn Heater On pin:  "));
+  Serial.println(HEATER_PIN);
+  digitalWrite(HEATER_PIN,HIGH);
+}
+
+void BAVRFieldController::heater_off()
+{
+  Serial.print(F("Turn Heater OFF pin:  "));
+  Serial.println(HEATER_PIN);
+  if (HEATER_PIN==56) {
+    Serial.println("Serial is 56");
+  }
+  digitalWrite(HEATER_PIN,LOW);
 }
 
 void BAVRFieldController::interrupt(int pin)
@@ -235,10 +274,17 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
   strcpy(uuid_initialization_topic, "nodered/initialization/");
   strcat(uuid_initialization_topic, uuid);
 
-   clean_buffers(); // clean buffers before use
   char update_window_topic[256];
   strcpy(update_window_topic, "nodered/updatewindow/");
   strcat(update_window_topic, node_id);
+
+  char heateron_topic[256];
+  strcpy(heateron_topic, "nodered/heateron/");
+  strcat(heateron_topic, node_id);
+
+  char heateroff_topic[256];
+  strcpy(heateroff_topic, "nodered/heateroff/");
+  strcat(heateroff_topic, node_id);
 
   // this block is needed apparently to deserialized because payload may not be null terminated? not sure
   if (length > 0)
@@ -275,6 +321,19 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     // now that we know who we are, subscribe to our nodeid
     reset_all();
     valid_message = true;
+  }
+  else if (prefix(heateron_topic,topic))
+  {
+    heater_on();
+    valid_message = true;
+
+  }
+
+  else if (prefix(heateroff_topic,topic))
+  {
+    heater_off();
+    valid_message = true;
+
   }
 
   else if (prefix(uuid_initialization_topic,topic))

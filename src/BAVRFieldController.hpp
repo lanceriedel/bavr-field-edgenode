@@ -1,6 +1,6 @@
 #ifndef BAVRFieldController_h
 #define BAVRFieldController_h
-
+#include "config.hpp"
 #include "BAVRFieldComms.hpp"
 #include "LEDAnimations.hpp"
 #include "LaserDetect.hpp"
@@ -11,7 +11,11 @@
 class BAVRFieldController
 {
 public:
-    BAVRFieldController(LEDAnimations* led_animations, LaserDetect* laser_detect, BAVRFieldComms* field_comms, TroughDetect* trough_detect, BallDetect* ball_detect);
+    BAVRFieldController(LEDAnimations* led_animations, 
+    LaserDetect* laser_detect, 
+    BAVRFieldComms* field_comms,
+     TroughDetect* trough_detect, 
+     BallDetect* ball_detect);
     boolean setup(const char* unique_id);
     void loop();
     void callback(char* topic, byte* payload, unsigned int length);
@@ -28,8 +32,9 @@ public:
     void subscribe_all();
     void reset_all();
     void clean_buffers();
-
-
+    void set_heater_pin(uint8_t p);
+    void heater_on();
+    void heater_off();
 
 private:
     void set_config();
@@ -43,8 +48,10 @@ private:
     char topic[256];
     char message[512];
     char uuid[32];
+    uint8_t heater_pin;
 
     uint16_t current_fire_score = 0;
+    int building_name_index = -1;
 };
 
 #endif
