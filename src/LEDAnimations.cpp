@@ -5,6 +5,57 @@ uint32_t crgb_to_hex(CRGB color)
   return ((long)color.r << 16L) | ((long)color.g << 8L) | (long)color.b;
 }
 
+Gutter::Gutter()
+{
+
+}
+Gutter::Gutter(uint16_t the_first_pixel)
+{
+  first_pixel = the_first_pixel;
+}
+void Gutter::setup()
+{
+  blackout_gutter();
+}
+void Gutter::blackout_gutter()
+{
+  for (int j = 0; j < num_leds_gutter; j++)
+    {
+      pixels[j] = CRGB::Black;
+    }
+}
+void Gutter::set_progress(uint8_t steps)
+{
+  #define spacing 2 //every x leds skips a spot
+
+  uint8_t leds = (spacing+1) * steps;
+  if (leds > num_leds_gutter) //cap the progress at length of gutter
+  {
+    leds = num_leds_gutter;
+  }
+  for (int i=0; i<leds; i++)
+  {
+    if (i%spacing == 0)
+    {
+      pixels[i] = CRGB::Black;
+    }
+    else
+    {
+      pixels[i] = CRGB::Green;
+    }
+  }
+}
+
+void Gutter::cp_data(CRGB *buffer)
+{
+  int k = first_pixel;
+  for (int i = 0; i < num_leds_gutter; i++)
+  {
+    buffer[k] = pixels[i]; //copy in the pixel data to the buffer
+    k++;
+  }
+}
+
 Window::Window()
 {
 }
@@ -149,6 +200,10 @@ LEDAnimations::LEDAnimations()
   building.sides[2].windows[1] = Window(5 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
   building.sides[3].windows[0] = Window(6 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
   building.sides[3].windows[1] = Window(7 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  building.sides[0].gutter = Gutter(8 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  building.sides[1].gutter = Gutter((8 * STRANDS_PER_WINDOW * LEDS_PER_STRAND) + (1 * LEDS_GUTTER));
+  building.sides[2].gutter = Gutter(8 * STRANDS_PER_WINDOW * LEDS_PER_STRAND+ (2 * LEDS_GUTTER));
+  building.sides[3].gutter = Gutter(8 * STRANDS_PER_WINDOW * LEDS_PER_STRAND+ (3 * LEDS_GUTTER));
 }
 
 void LEDAnimations::draw()

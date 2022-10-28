@@ -10,6 +10,8 @@
 #define LEDS_PER_STRAND 8
 #define ANIMATION_REFRESH 250
 
+#define LEDS_GUTTER 18
+
 const CRGB flames_colors[8] = {
     // descending heat levels (yellow - hottest), (red-coolest)
     CRGB(0xFF8800), // yellow
@@ -23,6 +25,21 @@ const CRGB flames_colors[8] = {
 };
 
 uint32_t crgb_to_hex(CRGB color); // fn to convert CRGB for printing
+
+class Gutter
+{
+private:
+    uint8_t num_leds_gutter = LEDS_GUTTER;
+    CRGB pixels[LEDS_GUTTER];
+    uint16_t first_pixel;//index of this objects first pixel in the total pixel array
+public:
+    Gutter();
+    Gutter(uint16_t the_first_pixel);
+    void setup();
+    void blackout_gutter();
+    void set_progress(uint8_t steps);
+    void cp_data(CRGB *buffer);
+};
 
 class Window
 {
@@ -52,6 +69,7 @@ class Side
 public:
     Side();
     Window windows[2];
+    Gutter gutter;
 };
 
 class Building

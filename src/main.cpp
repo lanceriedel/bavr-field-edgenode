@@ -86,7 +86,7 @@ void setup()
   led_animations.setup();
 
   // set up the ball detector
-  //Serial.println(F("Ball Detector setup..."));
+  Serial.println(F("Ball Detector setup..."));
   ball_detect.ball_init(BALL_DROP_PIN);
 
   // set up the laser detector
@@ -94,7 +94,7 @@ void setup()
   laser_detect.laser_init();
 
   // set up the scale (trough)
- // Serial.println(F("Trough setup..."));
+  Serial.println(F("Trough setup..."));
   trough_detect.trough_init();
 
   Serial.println(F("Pubsub setup..."));
