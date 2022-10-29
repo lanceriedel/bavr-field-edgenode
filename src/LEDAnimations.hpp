@@ -35,6 +35,13 @@ public:
     Gutter(uint16_t the_first_pixel);
     uint8_t indicating = 2;
     uint8_t spacing = 1;
+    CRGB notify_color = CRGB::Blue;
+
+    enum op_mode 
+    {
+        segments,
+        notify
+    };
 
     void setup();
     void blackout_gutter();
@@ -44,9 +51,17 @@ public:
     void set_segment(uint8_t segment, bool enable);
     void lightup_gutter(CRGB color);
 
+    void set_mode(op_mode mode);
+    void compute();
+    void process_segments();
+    void process_notify();
+
 private:
     CRGB pixels[LEDS_PER_GUTTER];
     uint16_t first_pixel;//index of this objects first pixel in the total pixel array
+    op_mode mode=segments;
+    bool segments_arr[8] = {false};
+    
 };
 
 class Window

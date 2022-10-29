@@ -46,28 +46,61 @@ void Gutter::set_progress(uint8_t steps)
 
 void Gutter::set_segment(uint8_t segment, bool enable)
 {
-    uint8_t index = segment * (indicating + spacing);
-    //perform the calcs for a step
-    //do the indicating LEDs
-    for (int i = 0; i<indicating; i++)
+  segments_arr[segment] = enable;
+}
+
+void Gutter::process_segments()
+{
+    uint8_t num_segments = sizeof(segments_arr) / sizeof(segments_arr[0]);
+    uint8_t index = 0;
+
+    for (int j=0; j < num_segments; j++) //for each segment
     {
-      if (enable)
+      // do the indicating LEDs
+      for (int i = 0; i<indicating; i++)
       {
-        pixels[index] = CRGB::Green;
+        if (segments_arr[j]) //if the segment is enabled
+        {
+          pixels[index] = CRGB::Green;
+        }
+        else
+        {
+          pixels[index] = CRGB::Black;
+        }
+        index++;
       }
-      else
+      //do the spacing LEDs
+      for (int i=0; i<spacing; i++)
       {
         pixels[index] = CRGB::Black;
+        index++;
       }
-      index++;
     }
-    //do the spacing LEDs
-    for (int i=0; i<spacing; i++)
-    {
-      pixels[index] = CRGB::Black;
-      index++;
-    }
+}
+
+void Gutter::process_notify()
+{
+  for (int i=0; i<LEDS_PER_GUTTER; i++)
+  {
+    pixels[i] = notify_color;
   }
+}
+
+void Gutter::set_mode(op_mode mode)
+{
+  mode = mode;
+}
+void Gutter::compute()
+{
+  if (mode == segments)
+  {
+    process_segments();
+  }
+  else if (mode == notify)
+  {
+    process_notify();
+  }
+}
 
 void Gutter::cp_data(CRGB *buffer)
 {
@@ -271,6 +304,7 @@ void LEDAnimations::process_all_windows()
 
 void LEDAnimations::process_gutter(uint8_t side)
 {
+  building.sides[side].gutter.compute();
   building.sides[side].gutter.cp_data(gutters[0]);
 }
 void LEDAnimations::process_all_gutters()
@@ -288,6 +322,7 @@ void LEDAnimations::loop()
   if (now - last_render_time > ANIMATION_REFRESH)
   {
     process_all_windows();
+    process_all_gutters();
     draw();
     last_render_time = now;
   }
