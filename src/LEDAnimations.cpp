@@ -30,17 +30,17 @@ void Gutter::blackout_gutter()
 
 void Gutter::set_progress(uint8_t steps)
 {
-
-  //limit the range
-  uint8_t max_steps = LEDS_PER_GUTTER/ (indicating + spacing);
-  if (steps > max_steps)
+  uint8_t num_segments = sizeof(segments_arr) / sizeof(segments_arr[0]);
+  for (int i=0; i<num_segments; i++)
   {
-    steps = max_steps;
-  }
-  blackout_gutter();
-  for (int i=0; i<steps; i++)
-  {
-    set_segment(i, true);
+    if (i < steps)
+    {
+      set_segment(i, true);
+    }
+    else
+    {
+      set_segment(i, false);
+    }
   }
 }
 
@@ -326,4 +326,11 @@ void LEDAnimations::loop()
     draw();
     last_render_time = now;
   }
+}
+
+void LEDAnimations::boot_sequence(uint8_t progress)
+{
+  building.set_gutter_progress(progress);
+  process_all_gutters();
+  draw();
 }

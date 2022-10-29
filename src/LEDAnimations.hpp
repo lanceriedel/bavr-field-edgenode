@@ -61,7 +61,7 @@ private:
     uint16_t first_pixel;//index of this objects first pixel in the total pixel array
     op_mode mode=segments;
     bool segments_arr[8] = {false};
-    
+
 };
 
 class Window
@@ -120,6 +120,7 @@ public:
     void process_all_gutters(); //do this for all gutters
     void loop(); //main loop for this task
     void draw(); //write the pixels out to the strip
+    void boot_sequence(uint8_t progress);
 };
 
 #endif
