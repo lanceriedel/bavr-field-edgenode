@@ -36,18 +36,18 @@
 //sensor types - in order are 
 //LASER, TRENCH, BALL
 const int config [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to zero
-  {NO, NO, YES},       //RBO
-  {YES, NO, NO},         //RTO
+  {NO, NO, YES},          //RBO
+  {YES, NO, NO},          //RTO
   {YES, YES, NO},         //RBM
   {YES, YES, NO},         //RTM
   {NO, YES, YES},         //RBI
   {NO, YES, YES},         //RTI
-  {YES, YES, NO},         //LBI
-  {YES, YES, NO},         //LTI
+  {NO, YES, YES},         //LBI
+  {NO, YES, YES},         //LTI
   {YES, YES, NO},         //LBM
   {YES, YES, NO},         //LTM
-  {NO, YES, YES},         //LBO
-  {NO, YES, YES}          //LTO
+  {NO, NO, YES},         //LBO
+  {YES, NO, NO}          //LTO
 };
 
 
