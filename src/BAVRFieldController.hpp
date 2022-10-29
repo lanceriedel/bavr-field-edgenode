@@ -51,8 +51,8 @@ private:
     uint8_t heater_pin;
 
     uint16_t current_fire_score = 0;
-    uint16_t building_name_index;
-
+    uint8_t building_name_index;
+ 
 //sensor types - in order are 
 //LASER, TRENCH, BALL
 const uint8_t config_types [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to zero

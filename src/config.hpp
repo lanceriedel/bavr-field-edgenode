@@ -6,28 +6,28 @@
 //heater
 #define HEATER_PIN A2
 
-#define RBO  0
-#define RTO  1
-#define RBM  2
-#define RTM  3
-#define RBI  4
-#define RTI  5
+#define RBO  ((uint8_t)0)
+#define RTO  ((uint8_t)1)
+#define RBM  ((uint8_t)2)
+#define RTM  ((uint8_t)3)
+#define RBI  ((uint8_t)4)
+#define RTI  ((uint8_t)5)
 
-#define LBI  6
-#define LTI  7
-#define LBM  8
-#define LTM  9
-#define LBO  10
-#define LTO  11
+#define LBI  ((uint8_t)6)
+#define LTI  ((uint8_t)7)
+#define LBM  ((uint8_t)8)
+#define LTM  ((uint8_t)9)
+#define LBO  ((uint8_t)10)
+#define LTO  ((uint8_t)11)
 
-#define UNDEFINED_BLDG 200
+#define UNDEFINED_BLDG ((uint8_t)32)
 
-#define LASER 0
-#define TRENCH 1
-#define BALL 2
+#define LASER ((uint8_t)0)
+#define TRENCH ((uint8_t)1)
+#define BALL ((uint8_t)2)
 
-#define YES 1
-#define NO 0
+#define YES ((uint8_t)1)
+#define NO ((uint8_t)0)
 
 #define NUM_BUILDINGS 12
 #define NUM_SENSORS_TYPES 3
