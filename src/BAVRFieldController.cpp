@@ -503,6 +503,8 @@ void BAVRFieldController::event_trigger(const char *event, int whichone)
   if (strcmp(event, "laser") == 0)
   {
     this->laser_hit_message(1, whichone);
+    led_animations->building.set_active_laser(whichone);
+
   }
   if (strcmp(event, "trough") == 0)
   {
@@ -538,7 +540,7 @@ void BAVRFieldController::loop()
     }
   }
 
-  led_animations->loop();
+  //led_animations->loop();
 
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][BALL]==YES) {
     if (ball_detect->ball_detect())

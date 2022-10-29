@@ -108,6 +108,77 @@ void Gutter::cp_data(CRGB *buffer)
   }
 }
 
+
+
+Laser::Laser()
+{
+
+}
+
+Laser::Laser(uint16_t the_first_pixel)
+{
+  first_pixel = the_first_pixel;
+}
+
+void Laser::setup()
+{
+  blackout_laser();
+}
+
+void Laser::blackout_laser()
+{
+  
+  for (int i=0; i<LEDS_PER_LASER; i++)
+  {
+    pixels[i] = CRGB::Black;
+  
+  }
+}
+
+void Laser::turnon_laser()
+{
+  for (int i=0; i<LEDS_PER_LASER; i++)
+  {
+    pixels[i] = CRGB::White;
+  
+  }
+}
+
+void Laser::set_mode(op_mode new_mode)
+{
+  mode = new_mode;
+}
+
+void Laser::compute()
+{ 
+  unsigned long now = millis();
+  if (last_laser_time!=0 && (now - last_laser_time > LASER_REFRESH))
+  {
+    mode = turnoff;
+  }
+
+  if (mode == turnon)
+  {
+    turnon_laser();
+    last_laser_time = millis();
+  }
+  if (mode == turnoff)
+  {
+    blackout_laser();
+  }
+}
+
+void Laser::cp_data(CRGB *buffer)
+{
+  int k = first_pixel;
+  for (int i = 0; i < LEDS_PER_LASER; i++)
+  {
+    buffer[k] = pixels[i]; //copy in the pixel data to the buffer
+    k++;
+  }
+}
+
+
 Window::Window()
 {
 }
@@ -237,6 +308,10 @@ void Building::set_active_windows(uint8_t side, uint8_t windows)
   }
 }
 
+void Building::set_active_laser(uint8_t side) {
+  sides[side].laser.set_mode(Laser::turnon);
+}
+
 void Building::set_gutter_progress(uint8_t progress, CRGB color)
 {
   uint8_t num_sides = (sizeof(sides) / sizeof(sides[0]));
@@ -294,6 +369,11 @@ void LEDAnimations::setup()
 {
   FastLED.addLeds<WS2812, DATA_PIN_WINDOWS, GRB>(windows[0], 8 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
   FastLED.addLeds<WS2812, DATA_PIN_GUTTERS, GRB>(gutters[0], 4 * LEDS_PER_GUTTER);
+  FastLED.addLeds<WS2812, DATA_PIN_LASER_0, GRB>(lasers[0], LEDS_PER_LASER);
+  FastLED.addLeds<WS2812, DATA_PIN_LASER_1, GRB>(lasers[1], LEDS_PER_LASER);
+  FastLED.addLeds<WS2812, DATA_PIN_LASER_2, GRB>(lasers[2], LEDS_PER_LASER);
+  FastLED.addLeds<WS2812, DATA_PIN_LASER_3, GRB>(lasers[3], LEDS_PER_LASER);
+
 }
 
 void LEDAnimations::process_window(uint8_t side, uint8_t window)
@@ -312,6 +392,22 @@ void LEDAnimations::process_all_windows()
     {
       process_window(i, j);
     }
+  }
+}
+
+void LEDAnimations::process_laser(uint8_t side)
+{
+  building.sides[side].laser.compute();
+  building.sides[side].laser.cp_data(lasers[side]);
+}
+
+void LEDAnimations::process_all_lasers()
+{
+  int lenSides = sizeof(building.sides) ;
+
+  for (int i = 0; i < lenSides; i++)
+  {
+    process_laser(i);
   }
 }
 
@@ -336,6 +432,7 @@ void LEDAnimations::loop()
   {
     process_all_windows();
     process_all_gutters();
+    process_all_lasers();
     draw();
     last_render_time = now;
   }
