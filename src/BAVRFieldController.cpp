@@ -29,7 +29,7 @@ void BAVRFieldController::laser_hit_message(int hits, int whichone)
 
   clean_buffers(); // clean buffers before use
   json["num_hits"] = hits;
-  json["timestamp"] = 100000;
+  json["timestamp"] = millis();
   json["BUILDING_NAME"] = (const char *)node_id;
   json["side_id"] = whichone + 1;
 
@@ -95,7 +95,7 @@ void BAVRFieldController::ball_detect_message(int drops)
 
   clean_buffers(); // clean buffers before use
   json["num_drops"] = drops;
-  json["timestamp"] = 100000;
+  json["timestamp"] = millis();
   json["BUILDING_NAME"] = (const char *)node_id;
   json["side_id"] = 0;
 
@@ -114,7 +114,7 @@ void BAVRFieldController::trough_detect_message(int bags)
 
   clean_buffers(); // clean buffers before use
   json["num_bags"] = bags;
-  json["timestamp"] = 100000;
+  json["timestamp"] = millis();
   json["BUILDING_NAME"] = (const char *)node_id;
   json["side_id"] = 0;
 
@@ -188,14 +188,12 @@ void BAVRFieldController::subscribe_all()
   Serial.println(topic);
 
   clean_buffers();
-  
   strcpy(topic, "nodered/laserdiff");
   field_comms->subscribe(topic);
   Serial.print(F("Subscribed to:"));
   Serial.println(topic);
 
   clean_buffers();
-  
   strcpy(topic, "nodered/weighttare");
   field_comms->subscribe(topic);
   Serial.print(F("Subscribed to:"));
@@ -217,6 +215,27 @@ void BAVRFieldController::subscribe_all()
 
   clean_buffers();
   strcpy(topic, "nodered/heateroff/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/updategutter/bysegment/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/updategutter/orderedsegments/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/updategutter/full/");
   strcat(topic, node_id);
   field_comms->subscribe(topic);
   Serial.print(F("Subscribed to:"));
@@ -270,32 +289,15 @@ void BAVRFieldController::interrupt(int pin)
 void BAVRFieldController::callback(char *topic, byte *payload, unsigned int length)
 {
 
-
   bool valid_message = false;
 
   clean_buffers(); // clean buffers before use
-  char uuid_initialization_topic[256];
-  strcpy(uuid_initialization_topic, "nodered/initialization/");
-  strcat(uuid_initialization_topic, uuid);
-
-  char update_window_topic[256];
-  strcpy(update_window_topic, "nodered/updatewindow/");
-  strcat(update_window_topic, node_id);
-
-  char heateron_topic[256];
-  strcpy(heateron_topic, "nodered/heateron/");
-  strcat(heateron_topic, node_id);
-
-  char heateroff_topic[256];
-  strcpy(heateroff_topic, "nodered/heateroff/");
-  strcat(heateroff_topic, node_id);
 
   // this block is needed apparently to deserialized because payload may not be null terminated? not sure
   if (length > 0)
   {
     strncpy(message, (const char *)payload, length);
     message[length] = 0;
-    
   }
 
   if (prefix("nodered/firescore/", topic))
@@ -326,26 +328,24 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     reset_all();
     valid_message = true;
   }
-  else if (prefix(heateron_topic,topic))
+  else if (prefix("nodered/heateron/",topic))
   {
     heater_on();
     valid_message = true;
 
   }
 
-  else if (prefix(heateroff_topic,topic))
+  else if (prefix("nodered/heateroff/",topic))
   {
     heater_off();
     valid_message = true;
 
   }
 
-  else if (prefix(uuid_initialization_topic,topic))
+  else if (prefix("nodered/initialization/",topic))
   {
     Serial.println(F("I'm in the else-if-prefix"));
-    Serial.print(F("The uuid_initialization_topic is "));
-    Serial.println(uuid_initialization_topic);
-    Serial.print(F("The shorter topic is "));
+    Serial.print(F("The topic is "));
     Serial.println(topic);
     Serial.print(F("Currently, my node is "));
     Serial.println(node_id);
@@ -367,7 +367,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     valid_message = true;
   }
 
-  else if (prefix(update_window_topic, topic))
+  else if (prefix("nodered/updatewindow/", topic))
   {
     DeserializationError error = deserializeJson(json, message);
     // Test if parsing succeeds.
@@ -421,6 +421,69 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     last_weight_tare_reading_message();
     valid_message = true;
   }
+
+  else if (prefix("nodered/updategutter/bysegment/", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+    // Test if parsing succeeds.
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+    if (json.containsKey("segment_id") && json.containsKey("color"))
+    {
+      int segment = json["segment_id"];
+      long color_int = strtol(json["color"], 0, 16);
+      CRGB color(color_int);
+      led_animations->building.set_gutter_segment(segment, color);
+    }
+    valid_message = true;
+  }
+
+  else if (prefix("nodered/updategutter/orderedsegments/", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+    // Test if parsing succeeds.
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+    if (json.containsKey("num_segments") && json.containsKey("color"))
+    {
+      int segments = json["num_segments"];
+      long color_int = strtol(json["color"], 0, 16);
+      CRGB color(color_int);
+      led_animations->building.set_gutter_progress(segments, color);
+    }
+    valid_message = true;
+  }
+
+  else if (prefix("nodered/updategutter/full/", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+    // Test if parsing succeeds.
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+
+    if (json.containsKey("color"))
+    {
+      Serial.println("Json has a color");
+      long color_int = strtol(json["color"],0, 16L);
+      Serial.println(color_int, 16);
+      CRGB color(color_int);
+      led_animations->building.set_gutter_full(color);
+    }
+    valid_message = true;
+  }
+
   if (valid_message) {
     Serial.print(F("Message arrived ["));
     Serial.print((topic));
@@ -499,20 +562,11 @@ boolean BAVRFieldController::setup(const char *unique_id)
   strcpy(topic, "nodered/reset/match");
   field_comms->subscribe(topic);
 
-  // TODO - create second round of subscribing once assigned node id
-  clean_buffers();
-  strcpy(topic, "nodered/updatewindow/");
-  strcat(topic, node_id);
-  field_comms->subscribe(topic);
-
-  // Hand build JSON for now
   // Send request for initialization params (mostly node id)
   clean_buffers();
-
-  strcpy(topic, "{\"uuid\":\"");
-  strcat(topic, unique_id);
-  strcat(topic, "\", \"timestamp\":10000000}");
-
-  field_comms->message("edgenode/initialization", (const char *)topic);
+  json["uuid"] = unique_id;
+  json["timestamp"] = millis();
+  serializeJson(json, message);
+  field_comms->message("edgenode/initialization", (const char *) message);
   return true;
 }
