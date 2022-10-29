@@ -170,6 +170,8 @@ void BAVRFieldController::set_config() {
     building_name_index = LBO;
   if (strcmp(node_id, "LTO") == 0)
     building_name_index = LTO;
+
+  Serial.print(F("building_name_index="));Serial.println(building_name_index);
   
 
 }
@@ -471,8 +473,6 @@ void BAVRFieldController::loop()
   }
 
   led_animations->loop();
-
-  
 
   if (building_name_index>-1 && config[building_name_index][BALL]==YES) {
     if (ball_detect->ball_detect())

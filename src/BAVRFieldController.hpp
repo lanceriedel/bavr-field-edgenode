@@ -51,7 +51,7 @@ private:
     uint8_t heater_pin;
 
     uint16_t current_fire_score = 0;
-    int building_name_index = -1;
+    uint8_t building_name_index = -1;
 };
 
 #endif
