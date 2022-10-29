@@ -465,7 +465,7 @@ void BAVRFieldController::loop()
       event_trigger("trough", 0);
   }
 
-Serial.print(F("building name index:"));Serial.println((uint16_t)this->building_name_index);
+//Serial.print(F("building name index:"));Serial.println((uint16_t)this->building_name_index);
 
 //Serial.print("Is Laser:");Serial.println(config[building_name_index][LASER]);
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][LASER]==YES) {
@@ -487,7 +487,7 @@ Serial.print(F("building name index:"));Serial.println((uint16_t)this->building_
 boolean BAVRFieldController::setup(const char *unique_id)
 {
   Serial.println(F("Controller setup..."));
-  building_name_index = 200;
+  building_name_index = (uint16_t)UNDEFINED_BLDG;
   clean_buffers();
   memset(uuid, 0, sizeof(uuid)); // took this from the original clean_buffers
   strcpy(uuid, unique_id);

@@ -55,7 +55,7 @@ private:
 
 //sensor types - in order are 
 //LASER, TRENCH, BALL
-const int config_types [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to zero
+const uint8_t config_types [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to zero
   {NO, NO, YES},          //RBO
   {YES, NO, NO},          //RTO
   {YES, YES, NO},         //RBM
