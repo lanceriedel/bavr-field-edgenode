@@ -11,7 +11,7 @@ public:
     bool setup(const char* unique_id, PubSubClient* client);
     void reconnect();
     bool connected();
-    bool loop();
+    void loop();
     void subscribe(const char* topic);
     bool message(const char* topic, const char* messagestr);
     void callback(char* topic, byte* payload, unsigned int length);

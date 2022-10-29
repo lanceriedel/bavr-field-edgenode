@@ -63,7 +63,7 @@ boolean BAVRFieldComms::message(const char* topic, const char* messagestr) {
   return true;
 }
 
-boolean BAVRFieldComms::loop() {
+void BAVRFieldComms::loop() {
     if (!client->connected()) {
       reconnect();
     }

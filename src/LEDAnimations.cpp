@@ -1,66 +1,110 @@
 #include "LEDAnimations.hpp"
 
-LEDAnimations::LEDAnimations()
+uint32_t crgb_to_hex(CRGB color)
 {
-  building = Building();
-  building.sides[0] = Side();
-  building.sides[1] = Side();
-  building.sides[2] = Side();
-  building.sides[3] = Side();
-  building.sides[0].windows[0] = Window(0);
-  building.sides[0].windows[1] = Window(1 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
-  building.sides[1].windows[0] = Window(2 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
-  building.sides[1].windows[1] = Window(3 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
-  building.sides[2].windows[0] = Window(4 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
-  building.sides[2].windows[1] = Window(5 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
-  building.sides[3].windows[0] = Window(6 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
-  building.sides[3].windows[1] = Window(7 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  return ((long)color.r << 16L) | ((long)color.g << 8L) | (long)color.b;
 }
 
-void LEDAnimations::draw()
+Gutter::Gutter()
 {
-  // NOT sure yet
-  FastLED.show();
+
 }
 
-void LEDAnimations::setup()
+Gutter::Gutter(uint16_t the_first_pixel)
 {
-  FastLED.addLeds<WS2812, DATA_PIN_WALL_1, GRB>(entire_thing[0], TOTAL_LEDS);
+  first_pixel = the_first_pixel;
 }
 
-void LEDAnimations::process_window(uint8_t side, uint8_t window)
+void Gutter::setup()
 {
-  if (building.sides[side].windows[window].on_fire)
+  blackout_gutter();
+}
+
+void Gutter::blackout_gutter()
+{
+  set_progress(8,CRGB::Black);
+}
+
+void Gutter::set_progress(uint8_t steps, CRGB color)
+{
+  uint8_t num_segments = sizeof(segments_arr) / sizeof(segments_arr[0]);
+  for (int i=0; i<num_segments; i++)
   {
-    building.sides[side].windows[window].fake_fire();
-  }
-  else
-  {
-    building.sides[side].windows[window].blackout_window();
-  }
-  building.sides[side].windows[window].cp_data(entire_thing[0]);
-}
-
-void LEDAnimations::process_all_windows()
-{
-  uint8_t lenWindows = sizeof(building.sides[0].windows) / sizeof(building.sides[0].windows[0]);
-  uint8_t lenSides = sizeof(building.sides) / sizeof(building.sides[0]);
-  for (int i = 0; i < lenSides; i++)
-  {
-    for (int j = 0; j < lenWindows; j++)
+    if (i < steps)
     {
-      process_window(i, j);
+      set_segment(i, color);
+    }
+    else
+    {
+      set_segment(i, CRGB::Black);
     }
   }
 }
-void LEDAnimations::loop()
+
+void Gutter::set_segment(uint8_t segment, CRGB color)
 {
-  unsigned long now = millis();
-  if (now - last_render_time > ANIMATION_REFRESH)
+  set_mode(segments);
+  segments_arr[segment] = color;
+}
+
+void Gutter::process_segments()
+{
+    uint8_t num_segments = sizeof(segments_arr) / sizeof(segments_arr[0]);
+    uint8_t index = 0;
+
+    for (int j=0; j < num_segments; j++) //for each segment
+    {
+      // do the indicating LEDs
+      for (int i = 0; i<indicating; i++)
+      {
+        pixels[index] = segments_arr[j];
+        index++;
+      }
+      //do the spacing LEDs
+      for (int i=0; i<spacing; i++)
+      {
+        pixels[index] = CRGB::Black;
+        index++;
+      }
+    }
+}
+
+void Gutter::set_notify(CRGB color)
+{
+  set_mode(notify);
+  notify_color = color;
+}
+void Gutter::process_notify()
+{
+  for (int i=0; i<LEDS_PER_GUTTER; i++)
   {
-    process_all_windows();
-    draw();
-    last_render_time = now;
+    pixels[i] = notify_color;
+  }
+}
+
+void Gutter::set_mode(op_mode new_mode)
+{
+  mode = new_mode;
+}
+void Gutter::compute()
+{
+  if (mode == segments)
+  {
+    process_segments();
+  }
+  else if (mode == notify)
+  {
+    process_notify();
+  }
+}
+
+void Gutter::cp_data(CRGB *buffer)
+{
+  int k = first_pixel;
+  for (int i = 0; i < LEDS_PER_GUTTER; i++)
+  {
+    buffer[k] = pixels[i]; //copy in the pixel data to the buffer
+    k++;
   }
 }
 
@@ -75,9 +119,9 @@ Window::Window(uint16_t the_first_pixel)
 
 void Window::blackout_window()
 {
-  for (int i = 0; i < strands; i++)
+  for (int i = 0; i < STRANDS_PER_WINDOW; i++)
   {
-    for (int j = 0; j < leds_per_strand; j++)
+    for (int j = 0; j < LEDS_PER_STRAND; j++)
     {
       pixels[i][j] = CRGB::Black;
     }
@@ -89,27 +133,22 @@ void Window::setup()
   blackout_window();
 }
 
-uint32_t Window::crgb_to_hex(CRGB color)
-{
-  return ((long)color.r << 16L) | ((long)color.g << 8L) | (long)color.b;
-}
-
 void Window::fake_fire()
 // set arbitrary height, copy in num flames...
 {
-  for (int i = 0; i < strands; i++)
+  for (int i = 0; i < STRANDS_PER_WINDOW; i++)
   {
-    bool reverse = false;
+    bool reverse = false; //this is the reversing function to handle strips that are oriented 180 from each other
     if (i % 2 != 0)
     {
       reverse = true;
     }
     // calculate a random height for the flame for this strand
-    uint8_t height = random(leds_per_strand / 4, leds_per_strand);
-    for (int j = 0; j < leds_per_strand; j++)
+    uint8_t height = random(LEDS_PER_STRAND / 4, LEDS_PER_STRAND);
+    for (int j = 0; j < LEDS_PER_STRAND; j++)
     {
       CRGB color;
-      // calculate the offset to start copying in the flames.
+      // calculate the offset to start copying in the flames to the strand
       uint8_t lenFlames = sizeof(flames_colors) / sizeof(flames_colors[0]);
       uint8_t offset = lenFlames - height;
       if (j <= height)
@@ -123,26 +162,38 @@ void Window::fake_fire()
       int pixelnumber;
       if (reverse)
       {
-        pixelnumber = (leds_per_strand - 1) - j;
+        pixelnumber = (LEDS_PER_STRAND - 1) - j;
       }
       else
       {
         pixelnumber = j;
       }
       // Serial.println(crgb_to_hex(color), HEX);
-      pixels[i][pixelnumber] = color;
+      pixels[i][pixelnumber] = color; //fill a strand at a time
     }
+  }
+}
+
+void Window::compute()
+{
+  if (on_fire)
+  {
+    fake_fire();
+  }
+  else
+  {
+   blackout_window();
   }
 }
 
 void Window::cp_data(CRGB *buffer)
 {
   int k = first_pixel;
-  for (int i = 0; i < strands; i++)
+  for (int i = 0; i < STRANDS_PER_WINDOW; i++) //for each strand of the window
   {
-    for (int j = 0; j < leds_per_strand; j++)
+    for (int j = 0; j < LEDS_PER_STRAND; j++) //for each led in the strand
     {
-      buffer[k] = pixels[i][j];
+      buffer[k] = pixels[i][j]; //copy in the pixel data to the buffer
       k++;
     }
   }
@@ -184,4 +235,115 @@ void Building::set_active_windows(uint8_t side, uint8_t windows)
       }
     }
   }
+}
+
+void Building::set_gutter_progress(uint8_t progress, CRGB color)
+{
+  uint8_t num_sides = (sizeof(sides) / sizeof(sides[0]));
+  for (int i=0; i<num_sides; i++)
+  {
+    sides[i].gutter.set_progress(progress, color);
+  }
+}
+
+void Building::set_gutter_segment(uint8_t segment, CRGB color)
+{
+  uint8_t num_sides = (sizeof(sides) / sizeof(sides[0]));
+  for (int i=0; i<num_sides; i++)
+  {
+    sides[i].gutter.set_segment(segment, color);
+  }
+}
+void Building::set_gutter_full(CRGB color)
+{
+  uint8_t num_sides = (sizeof(sides) / sizeof(sides[0]));
+  for (int i=0; i<num_sides; i++)
+  {
+    sides[i].gutter.set_notify(color);
+  }
+}
+
+LEDAnimations::LEDAnimations()
+{
+  building = Building();
+  building.sides[0] = Side();
+  building.sides[1] = Side();
+  building.sides[2] = Side();
+  building.sides[3] = Side();
+  building.sides[0].windows[0] = Window(0);
+  building.sides[0].windows[1] = Window(1 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  building.sides[1].windows[0] = Window(2 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  building.sides[1].windows[1] = Window(3 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  building.sides[2].windows[0] = Window(4 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  building.sides[2].windows[1] = Window(5 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  building.sides[3].windows[0] = Window(6 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  building.sides[3].windows[1] = Window(7 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  building.sides[0].gutter = Gutter(0);
+  building.sides[1].gutter = Gutter(1 * LEDS_PER_GUTTER);
+  building.sides[2].gutter = Gutter(2 * LEDS_PER_GUTTER);
+  building.sides[3].gutter = Gutter(3 * LEDS_PER_GUTTER); //this is an awful way to stack the strip but..it works?
+}
+
+void LEDAnimations::draw()
+{
+  // NOT sure yet
+  FastLED.show();
+}
+
+void LEDAnimations::setup()
+{
+  FastLED.addLeds<WS2812, DATA_PIN_WINDOWS, GRB>(windows[0], 8 * STRANDS_PER_WINDOW * LEDS_PER_STRAND);
+  FastLED.addLeds<WS2812, DATA_PIN_GUTTERS, GRB>(gutters[0], 4 * LEDS_PER_GUTTER);
+}
+
+void LEDAnimations::process_window(uint8_t side, uint8_t window)
+{
+  building.sides[side].windows[window].compute();
+  building.sides[side].windows[window].cp_data(windows[0]);
+}
+
+void LEDAnimations::process_all_windows()
+{
+  uint8_t lenWindows = sizeof(building.sides[0].windows) / sizeof(building.sides[0].windows[0]);
+  uint8_t lenSides = sizeof(building.sides) / sizeof(building.sides[0]);
+  for (int i = 0; i < lenSides; i++)
+  {
+    for (int j = 0; j < lenWindows; j++)
+    {
+      process_window(i, j);
+    }
+  }
+}
+
+void LEDAnimations::process_gutter(uint8_t side)
+{
+  building.sides[side].gutter.compute();
+  building.sides[side].gutter.cp_data(gutters[0]);
+}
+void LEDAnimations::process_all_gutters()
+{
+  uint8_t lenSides = sizeof(building.sides) / sizeof(building.sides[0]);
+  for (int i = 0; i < lenSides; i++)
+  {
+    process_gutter(i);
+  }
+}
+
+void LEDAnimations::loop()
+{
+  unsigned long now = millis();
+  if (now - last_render_time > ANIMATION_REFRESH)
+  {
+    process_all_windows();
+    process_all_gutters();
+    draw();
+    last_render_time = now;
+  }
+}
+
+void LEDAnimations::boot_sequence(uint8_t progress)
+{
+  building.set_gutter_progress(progress, CRGB::Blue);
+  process_all_gutters();
+  draw();
 }
