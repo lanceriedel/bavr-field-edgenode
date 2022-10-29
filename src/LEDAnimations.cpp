@@ -22,31 +22,29 @@ void Gutter::setup()
 
 void Gutter::blackout_gutter()
 {
-  for (int j = 0; j < LEDS_PER_GUTTER; j++)
-    {
-      pixels[j] = CRGB::Black;
-    }
+  set_progress(8,CRGB::Black);
 }
 
-void Gutter::set_progress(uint8_t steps)
+void Gutter::set_progress(uint8_t steps, CRGB color)
 {
   uint8_t num_segments = sizeof(segments_arr) / sizeof(segments_arr[0]);
   for (int i=0; i<num_segments; i++)
   {
     if (i < steps)
     {
-      set_segment(i, true);
+      set_segment(i, color);
     }
     else
     {
-      set_segment(i, false);
+      set_segment(i, CRGB::Black);
     }
   }
 }
 
-void Gutter::set_segment(uint8_t segment, bool enable)
+void Gutter::set_segment(uint8_t segment, CRGB color)
 {
-  segments_arr[segment] = enable;
+  set_mode(segments);
+  segments_arr[segment] = color;
 }
 
 void Gutter::process_segments()
@@ -59,14 +57,7 @@ void Gutter::process_segments()
       // do the indicating LEDs
       for (int i = 0; i<indicating; i++)
       {
-        if (segments_arr[j]) //if the segment is enabled
-        {
-          pixels[index] = CRGB::Green;
-        }
-        else
-        {
-          pixels[index] = CRGB::Black;
-        }
+        pixels[index] = segments_arr[j];
         index++;
       }
       //do the spacing LEDs
@@ -78,6 +69,11 @@ void Gutter::process_segments()
     }
 }
 
+void Gutter::set_notify(CRGB color)
+{
+  set_mode(notify);
+  notify_color = color;
+}
 void Gutter::process_notify()
 {
   for (int i=0; i<LEDS_PER_GUTTER; i++)
@@ -86,9 +82,9 @@ void Gutter::process_notify()
   }
 }
 
-void Gutter::set_mode(op_mode mode)
+void Gutter::set_mode(op_mode new_mode)
 {
-  mode = mode;
+  mode = new_mode;
 }
 void Gutter::compute()
 {
@@ -241,12 +237,29 @@ void Building::set_active_windows(uint8_t side, uint8_t windows)
   }
 }
 
-void Building::set_gutter_progress(uint8_t progress)
+void Building::set_gutter_progress(uint8_t progress, CRGB color)
 {
   uint8_t num_sides = (sizeof(sides) / sizeof(sides[0]));
   for (int i=0; i<num_sides; i++)
   {
-    sides[i].gutter.set_progress(progress);
+    sides[i].gutter.set_progress(progress, color);
+  }
+}
+
+void Building::set_gutter_segment(uint8_t segment, CRGB color)
+{
+  uint8_t num_sides = (sizeof(sides) / sizeof(sides[0]));
+  for (int i=0; i<num_sides; i++)
+  {
+    sides[i].gutter.set_segment(segment, color);
+  }
+}
+void Building::set_gutter_full(CRGB color)
+{
+  uint8_t num_sides = (sizeof(sides) / sizeof(sides[0]));
+  for (int i=0; i<num_sides; i++)
+  {
+    sides[i].gutter.set_notify(color);
   }
 }
 
@@ -330,7 +343,7 @@ void LEDAnimations::loop()
 
 void LEDAnimations::boot_sequence(uint8_t progress)
 {
-  building.set_gutter_progress(progress);
+  building.set_gutter_progress(progress, CRGB::Blue);
   process_all_gutters();
   draw();
 }

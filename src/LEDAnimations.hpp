@@ -37,7 +37,7 @@ public:
     uint8_t spacing = 1;
     CRGB notify_color = CRGB::Blue;
 
-    enum op_mode 
+    enum op_mode
     {
         segments,
         notify
@@ -47,11 +47,11 @@ public:
     void blackout_gutter();
     void cp_data(CRGB *buffer);
 
-    void set_progress(uint8_t steps);
-    void set_segment(uint8_t segment, bool enable);
-    void lightup_gutter(CRGB color);
+    void set_progress(uint8_t steps, CRGB color);
+    void set_segment(uint8_t segment, CRGB color);
+    void set_notify(CRGB color);
 
-    void set_mode(op_mode mode);
+    void set_mode(op_mode new_mode);
     void compute();
     void process_segments();
     void process_notify();
@@ -60,7 +60,7 @@ private:
     CRGB pixels[LEDS_PER_GUTTER];
     uint16_t first_pixel;//index of this objects first pixel in the total pixel array
     op_mode mode=segments;
-    bool segments_arr[8] = {false};
+    CRGB segments_arr[8] = {CRGB::Black};
 
 };
 
@@ -97,7 +97,9 @@ public:
     Building();
     Side sides[4];
     void set_active_windows(uint8_t side, uint8_t windows); //set which windows are on fire or not
-    void set_gutter_progress(uint8_t progress); //sets the progress for all gutters
+    void set_gutter_progress(uint8_t progress, CRGB color); //sets the progress for all gutters
+    void set_gutter_segment(uint8_t segment, CRGB color);
+    void set_gutter_full(CRGB color);
     //void set_gutter_segments(uint8_t segment, bool enable);
 };
 
