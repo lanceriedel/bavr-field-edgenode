@@ -121,11 +121,17 @@ void setup()
   pinMode(HEATER_PIN,OUTPUT);
 
   controller = new BAVRFieldController(&led_animations, &laser_detect, &field_comms, &trough_detect, &ball_detect);
+  Serial.println(F("Controller created..."));
+
   controller->set_heater_pin(HEATER_PIN);
 
   delay(1500);
+  Serial.println(F("Controller setup..."));
+
   controller->setup((const char *)suuid);
   attachInterrupt(digitalPinToInterrupt(BALL_DROP_PIN), interruptPinBallDrop, FALLING);
+
+  Serial.println(F("LED boot_sequence(0)..."));
 
   led_animations.boot_sequence(0);
 }

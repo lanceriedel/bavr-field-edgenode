@@ -127,11 +127,10 @@ void Laser::setup()
 
 void Laser::blackout_laser()
 {
-  
+
   for (int i=0; i<LEDS_PER_LASER; i++)
   {
     pixels[i] = CRGB::Black;
-  
   }
 }
 
@@ -140,7 +139,6 @@ void Laser::turnon_laser()
   for (int i=0; i<LEDS_PER_LASER; i++)
   {
     pixels[i] = CRGB::White;
-  
   }
 }
 
@@ -150,7 +148,7 @@ void Laser::set_mode(op_mode new_mode)
 }
 
 void Laser::compute()
-{ 
+{
   unsigned long now = millis();
   if (last_laser_time!=0 && (now - last_laser_time > LASER_REFRESH))
   {
@@ -309,7 +307,7 @@ void Building::set_active_windows(uint8_t side, uint8_t windows)
 }
 
 void Building::set_active_laser(uint8_t side) {
-  sides[side].laser.set_mode(Laser::turnon);
+  //sides[side].laser.set_mode(Laser::turnon);
 }
 
 void Building::set_gutter_progress(uint8_t progress, CRGB color)
@@ -357,6 +355,11 @@ LEDAnimations::LEDAnimations()
   building.sides[1].gutter = Gutter(1 * LEDS_PER_GUTTER);
   building.sides[2].gutter = Gutter(2 * LEDS_PER_GUTTER);
   building.sides[3].gutter = Gutter(3 * LEDS_PER_GUTTER); //this is an awful way to stack the strip but..it works?
+  building.sides[0].laser = Laser(0);
+  building.sides[1].laser = Laser(0);
+  building.sides[2].laser = Laser(0);
+  building.sides[3].laser = Laser(0);
+
 }
 
 void LEDAnimations::draw()
@@ -432,7 +435,7 @@ void LEDAnimations::loop()
   {
     process_all_windows();
     process_all_gutters();
-    process_all_lasers();
+    //process_all_lasers();
     draw();
     last_render_time = now;
   }
