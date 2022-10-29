@@ -540,7 +540,7 @@ void BAVRFieldController::loop()
     }
   }
 
-  //led_animations->loop();
+  led_animations->loop();
 
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][BALL]==YES) {
     if (ball_detect->ball_detect())
