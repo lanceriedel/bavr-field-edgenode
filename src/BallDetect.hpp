@@ -13,7 +13,7 @@ class BallDetect
 public:
     BallDetect();
     void ball_init(int pin);
-    void ball_trigger();
+    void ball_trigger_interrupt();
     bool ball_detect();
     int get_pin();
 
@@ -22,7 +22,7 @@ private:
     int pin = 0;
     int sensorState = 0, lastState=0;
     uint32_t lasttrigger = 0;
-    int MAX_WAIT =2;
+    int MAX_WAIT =10;
 };
 
 #endif

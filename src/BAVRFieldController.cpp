@@ -262,7 +262,7 @@ void BAVRFieldController::interrupt(int pin)
   // Serial.println("");Serial.print("interupt pin:"); Serial.println(pin);
   if (pin == ball_detect->get_pin())
   {
-    ball_detect->ball_trigger();
+    ball_detect->ball_trigger_interrupt();
   }
 }
 
