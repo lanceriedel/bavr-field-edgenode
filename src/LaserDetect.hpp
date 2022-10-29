@@ -47,7 +47,7 @@ private:
     uint16_t last_temp[4]={0,0,0,0};
 
     //TODO: Change this to 4 when you have them all plugged in!
-    const int8_t NUM_SENSORS = 4;
+    const uint8_t NUM_SENSORS = 4;
 
 };
 

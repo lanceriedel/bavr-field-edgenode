@@ -51,7 +51,25 @@ private:
     uint8_t heater_pin;
 
     uint16_t current_fire_score = 0;
-    int building_name_index = -1;
+    uint16_t building_name_index;
+
+//sensor types - in order are 
+//LASER, TRENCH, BALL
+const uint8_t config_types [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to zero
+  {NO, NO, YES},          //RBO
+  {YES, NO, NO},          //RTO
+  {YES, YES, NO},         //RBM
+  {YES, YES, NO},         //RTM
+  {NO, YES, YES},         //RBI
+  {NO, YES, YES},         //RTI
+  {NO, YES, YES},         //LBI
+  {NO, YES, YES},         //LTI
+  {YES, YES, NO},         //LBM
+  {YES, YES, NO},         //LTM
+  {NO, NO, YES},         //LBO
+  {YES, NO, NO}          //LTO
+};
+
 };
 
 #endif
