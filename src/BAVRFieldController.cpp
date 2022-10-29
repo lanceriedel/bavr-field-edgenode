@@ -146,32 +146,33 @@ void BAVRFieldController::reset_match()
 void BAVRFieldController::set_config() {
   //arduino style -- brute force
   if (strcmp(node_id, "RBO") == 0)
-    building_name_index = RBO;
+    this->building_name_index = (uint16_t)RBO;
   if (strcmp(node_id, "RTO") == 0)
-    building_name_index = RTO;
+    this->building_name_index = (uint16_t)RTO;
   if (strcmp(node_id, "RBM") == 0)
-    building_name_index = RBM;
+    this->building_name_index = (uint16_t)RBM;
   if (strcmp(node_id, "RTM") == 0)
-    building_name_index = RTM;
+    this->building_name_index = (uint16_t)RTM;
   if (strcmp(node_id, "RBI") == 0)
-    building_name_index = RBI;
+    this->building_name_index = (uint16_t)RBI;
   if (strcmp(node_id, "RTI") == 0)
-    building_name_index = RTI;
+    this->building_name_index = (uint16_t)RTI;
 
   if (strcmp(node_id, "LBI") == 0)
-    building_name_index = LBI;
+    this->building_name_index = (uint16_t)LBI;
   if (strcmp(node_id, "LTI") == 0)
-    building_name_index = LTI;
+    this->building_name_index = (uint16_t)LTI;
   if (strcmp(node_id, "LBM") == 0)
-    building_name_index = LBM;
+    this->building_name_index = (uint16_t)LBM;
   if (strcmp(node_id, "LTM") == 0)
-    building_name_index = LTM;
+    this->building_name_index = (uint16_t)LTM;
   if (strcmp(node_id, "LBO") == 0)
-    building_name_index = LBO;
+    this->building_name_index = (uint16_t)LBO;
   if (strcmp(node_id, "LTO") == 0)
-    building_name_index = LTO;
+    this->building_name_index = (uint16_t)LTO;
 
-  Serial.print(F("building_name_index="));Serial.println(building_name_index);
+  
+  Serial.print(F("building_name_index="));Serial.println(this->building_name_index);
   
 
 }
@@ -458,13 +459,16 @@ void BAVRFieldController::loop()
 {
 
   field_comms->loop();
-  if (building_name_index>-1 && config[building_name_index][TRENCH]==YES) {
+  if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][TRENCH]==YES) {
     trough_detect->trough_detect();
   if (trough_detect->triggered())
       event_trigger("trough", 0);
   }
 
-  if (building_name_index>-1 && config[building_name_index][LASER]==YES) {
+Serial.print(F("building name index:"));Serial.println((uint16_t)this->building_name_index);
+
+//Serial.print("Is Laser:");Serial.println(config[building_name_index][LASER]);
+  if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][LASER]==YES) {
     int8_t trigger = laser_detect->laser_detect();
     if (trigger >= 0)
     {
@@ -474,7 +478,7 @@ void BAVRFieldController::loop()
 
   led_animations->loop();
 
-  if (building_name_index>-1 && config[building_name_index][BALL]==YES) {
+  if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][BALL]==YES) {
     if (ball_detect->ball_detect())
       event_trigger("ball", 0);
     }
@@ -483,6 +487,7 @@ void BAVRFieldController::loop()
 boolean BAVRFieldController::setup(const char *unique_id)
 {
   Serial.println(F("Controller setup..."));
+  building_name_index = 200;
   clean_buffers();
   memset(uuid, 0, sizeof(uuid)); // took this from the original clean_buffers
   strcpy(uuid, unique_id);

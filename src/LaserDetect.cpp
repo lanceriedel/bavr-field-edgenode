@@ -159,7 +159,7 @@ int8_t LaserDetect::laser_detect() {
     
     last_temp[i] = colorTemp;
 
-    //Serial.println(" ");Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.println(" K - ");
+    Serial.println(" ");Serial.print("Color Temp: "); Serial.print(colorTemp, DEC); Serial.println(" K - ");
     //Serial.print("C: "); Serial.print(c, DEC); Serial.print(" - ");
    // Serial.print("LUx: "); Serial.print(lux); Serial.print(" - ");
     //Serial.print("R: "); Serial.print(r, DEC); Serial.print(" -");
