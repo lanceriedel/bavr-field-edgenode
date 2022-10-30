@@ -300,6 +300,12 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     message[length] = 0;
   }
 
+  //Keeping this for now -- it was still getting messages for all nodes, even though subscribed to its uuid
+
+  char uuid_initialization_topic[256];
+  strcpy(uuid_initialization_topic, "nodered/initialization/");
+  strcat(uuid_initialization_topic, uuid);
+
   if (prefix("nodered/firescore/", topic))
   {
     DeserializationError error = deserializeJson(json, message);
@@ -342,7 +348,8 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
 
   }
 
-  else if (prefix("nodered/initialization/",topic))
+  //else if (prefix("nodered/initialization/",topic))   //NOTE -- This is still getting all node ids!
+  else if (prefix(uuid_initialization_topic,topic))
   {
     Serial.println(F("I'm in the else-if-prefix"));
     Serial.print(F("The topic is "));
