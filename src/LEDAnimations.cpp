@@ -122,6 +122,7 @@ Laser::Laser(uint16_t the_first_pixel)
 
 void Laser::setup()
 {
+  mode = turnoff;
   blackout_laser();
 }
 
@@ -145,23 +146,30 @@ void Laser::turnon_laser()
 void Laser::set_mode(op_mode new_mode)
 {
   mode = new_mode;
+  last_laser_time = millis();
 }
 
 void Laser::compute()
 {
-  unsigned long now = millis();
-  if (last_laser_time!=0 && (now - last_laser_time > LASER_REFRESH))
-  {
-    mode = turnoff;
-  }
+  // unsigned long now = millis();
+  // if (last_laser_time==0) {
+  //   last_laser_time = millis();
+  // }
+  // if ((mode == turnon) && (now - last_laser_time > LASER_REFRESH))
+  // {
+  //   mode = turnoff;
+  //   Serial.print("-");
+  // }
 
   if (mode == turnon)
   {
     turnon_laser();
+   // Serial.print("+");
     last_laser_time = millis();
   }
   if (mode == turnoff)
   {
+   // Serial.print("|");
     blackout_laser();
   }
 }
@@ -307,7 +315,15 @@ void Building::set_active_windows(uint8_t side, uint8_t windows)
 }
 
 void Building::set_active_laser(uint8_t side) {
-  //sides[side].laser.set_mode(Laser::turnon);
+  Serial.print("Setting active laser !!!! : ");Serial.println(side);
+
+  sides[side].laser.set_mode(Laser::turnon);
+}
+
+void Building::set_inactive_laser(uint8_t side) {
+  Serial.print("Setting inactive laser in!!!! : ");Serial.println(side);
+
+  sides[side].laser.set_mode(Laser::turnoff);
 }
 
 void Building::set_gutter_progress(uint8_t progress, CRGB color)
@@ -401,17 +417,20 @@ void LEDAnimations::process_all_windows()
 void LEDAnimations::process_laser(uint8_t side)
 {
   building.sides[side].laser.compute();
+  //Serial.print(" process laser for[");Serial.println(side);
+
   building.sides[side].laser.cp_data(lasers[side]);
 }
 
 void LEDAnimations::process_all_lasers()
 {
-  int lenSides = sizeof(building.sides) ;
-
+  int lenSides = 4 ;
+  //Serial.println("");
   for (int i = 0; i < lenSides; i++)
   {
     process_laser(i);
   }
+ // Serial.println("");
 }
 
 void LEDAnimations::process_gutter(uint8_t side)
@@ -435,7 +454,7 @@ void LEDAnimations::loop()
   {
     process_all_windows();
     process_all_gutters();
-    //process_all_lasers();
+    process_all_lasers();
     draw();
     last_render_time = now;
   }

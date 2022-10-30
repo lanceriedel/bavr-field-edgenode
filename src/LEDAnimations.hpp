@@ -19,7 +19,7 @@
 
 #define LEDS_PER_GUTTER 24
 
-#define LEDS_PER_LASER 24
+#define LEDS_PER_LASER 5
 
 #define LASER_REFRESH 750
 #define ANIMATION_REFRESH 250
@@ -143,6 +143,7 @@ public:
     void set_gutter_segment(uint8_t segment, CRGB color);
     void set_gutter_full(CRGB color);
     void set_active_laser(uint8_t side);
+    void set_inactive_laser(uint8_t side);
     //void set_gutter_segments(uint8_t segment, bool enable);
 };
 
@@ -152,6 +153,8 @@ private:
     CRGB windows[1][8 * STRANDS_PER_WINDOW * LEDS_PER_STRAND];
     CRGB gutters[1][4 * LEDS_PER_GUTTER];
     CRGB lasers[4][1 * LEDS_PER_LASER];
+    //CRGB lasers4[1][1 * LEDS_PER_LASER];
+
     unsigned long last_render_time = 0;
 
 public:

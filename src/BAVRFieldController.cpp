@@ -504,8 +504,11 @@ void BAVRFieldController::event_trigger(const char *event, int whichone)
   {
     this->laser_hit_message(1, whichone);
     uint8_t thisone = (uint8_t) whichone;
+    Serial.println(F("Turning on laser"));
+    led_animations->building.set_inactive_laser(lastone);
     led_animations->building.set_active_laser(thisone);
-
+    lastone = thisone;
+    last_laser_time = millis();
   }
   if (strcmp(event, "trough") == 0)
   {
@@ -541,7 +544,12 @@ void BAVRFieldController::loop()
     }
   }
 
-  //led_animations->loop();
+  led_animations->loop();
+  uint32_t currentms = millis();
+  if (currentms-last_laser_time > MAX_LASER_INDICATOR && lastone!=99) {
+      led_animations->building.set_inactive_laser(lastone);
+      lastone = 99;
+  }
 
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][BALL]==YES) {
     if (ball_detect->ball_detect())

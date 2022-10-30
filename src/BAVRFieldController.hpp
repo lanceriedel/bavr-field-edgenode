@@ -35,6 +35,7 @@ public:
     void set_heater_pin(uint8_t p);
     void heater_on();
     void heater_off();
+    
 
 private:
     void set_config();
@@ -52,6 +53,10 @@ private:
 
     uint16_t current_fire_score = 0;
     uint8_t building_name_index;
+    uint32_t last_laser_time;
+
+    const uint32_t MAX_LASER_INDICATOR = 750;
+    uint8_t lastone = 0;
  
 //sensor types - in order are 
 //LASER, TRENCH, BALL
