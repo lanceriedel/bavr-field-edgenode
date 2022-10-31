@@ -300,11 +300,22 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     message[length] = 0;
   }
 
+  Serial.print(F("Message arrived ["));
+    Serial.print((topic));
+    Serial.print(F("] "));
+
+
+
   //Keeping this for now -- it was still getting messages for all nodes, even though subscribed to its uuid
 
-  char uuid_initialization_topic[256];
+  char uuid_initialization_topic[64];
+  memset(uuid_initialization_topic, 0, sizeof(topic));
+
   strcpy(uuid_initialization_topic, "nodered/initialization/");
   strcat(uuid_initialization_topic, uuid);
+
+      Serial.print("looking for:");Serial.println(uuid_initialization_topic);
+
 
   if (prefix("nodered/firescore/", topic))
   {
