@@ -217,9 +217,7 @@ void Window::damaged()
   {
     for (int j = 0; j < LEDS_PER_STRAND; j++)
     {
-      CRGB color = CRGB(0xFF8800);
-
-      int pixelnumber;
+      CRGB color = CRGB(0xCCCC00);
       pixels[i][j] = color; //fill a strand at a time
     }
   }
