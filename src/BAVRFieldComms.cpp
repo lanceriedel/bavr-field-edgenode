@@ -22,12 +22,8 @@ void BAVRFieldComms::reconnect() {
     // Attempt to connect
 
     if (client->connect(unique_id)) {
-      char topic[256];
-      memset(topic, 0, sizeof(topic));
-      strcpy(topic, "nodered/initialization/");
-      strcat(topic, unique_id);
       Serial.println("connected");
-      client->subscribe(topic);
+      client->subscribe("nodered/initialization/#");
       delay(1000);
 
     } else {
