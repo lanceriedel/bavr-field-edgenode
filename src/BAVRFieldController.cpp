@@ -302,9 +302,11 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
 
   //Keeping this for now -- it was still getting messages for all nodes, even though subscribed to its uuid
 
-  char uuid_initialization_topic[256];
+  char uuid_initialization_topic[64];
+  memset(uuid_initialization_topic, 0, sizeof(topic));
   strcpy(uuid_initialization_topic, "nodered/initialization/");
   strcat(uuid_initialization_topic, uuid);
+
 
   if (prefix("nodered/firescore/", topic))
   {
