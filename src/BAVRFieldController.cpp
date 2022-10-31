@@ -389,6 +389,8 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
       int side = json["side_id"];
       int activeWindows = json["activeWindows"];
       led_animations->building.set_active_windows(side, activeWindows);
+      int damagedWindows = json["damagedWindows"];
+      led_animations->building.set_damaged_windows(side, damagedWindows);
     }
     valid_message = true;
   }

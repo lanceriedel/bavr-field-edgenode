@@ -116,10 +116,14 @@ public:
     Window(uint16_t the_first_pixel);
 
     bool on_fire = false;
+    bool is_damaged = false;
+
 
     void setup();
     void blackout_window(); //remove the fire
     void fake_fire(); //fill the pixel array with fire
+    void damaged(); //fill the pixel array with damaged
+
     void cp_data(CRGB *buffer); // the buffer that contains the pixels where this window resides
     void compute(); //recompute the pixels for the window based on 'on_fire' or not
 };
@@ -139,6 +143,7 @@ public:
     Building();
     Side sides[4];
     void set_active_windows(uint8_t side, uint8_t windows); //set which windows are on fire or not
+    void set_damaged_windows(uint8_t side, uint8_t windows); //set which windows are damaged or not
     void set_gutter_progress(uint8_t progress, CRGB color); //sets the progress for all gutters
     void set_gutter_segment(uint8_t segment, CRGB color);
     void set_gutter_full(CRGB color);
