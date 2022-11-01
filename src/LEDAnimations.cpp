@@ -210,6 +210,19 @@ void Window::setup()
   blackout_window();
 }
 
+
+void Window::damaged()
+{
+  for (int i = 0; i < STRANDS_PER_WINDOW; i++)
+  {
+    for (int j = 0; j < LEDS_PER_STRAND; j++)
+    {
+      CRGB color = CRGB(0xCCCC00);
+      pixels[i][j] = color; //fill a strand at a time
+    }
+  }
+}
+
 void Window::fake_fire()
 // set arbitrary height, copy in num flames...
 {
@@ -253,7 +266,10 @@ void Window::fake_fire()
 
 void Window::compute()
 {
-  if (on_fire)
+  if (is_damaged) {
+    damaged();
+  }
+  else if (on_fire)
   {
     fake_fire();
   }
@@ -313,6 +329,39 @@ void Building::set_active_windows(uint8_t side, uint8_t windows)
     }
   }
 }
+
+
+void Building::set_damaged_windows(uint8_t side, uint8_t windows)
+{
+  Serial.print(F("Trying to set window "));
+  Serial.print(side);
+  Serial.print(F(" to "));
+  Serial.println(windows);
+
+  if (side > 0)
+  {
+    side--; //convert for 0 indexing
+    if (side < (sizeof(sides) / sizeof(sides[0])))
+    {
+      if (windows > 1)
+      {
+        sides[side].windows[0].is_damaged = true;
+        sides[side].windows[1].is_damaged = true;
+      }
+      else if (windows == 1)
+      {
+        sides[side].windows[0].is_damaged = true;
+        sides[side].windows[1].is_damaged = false;
+      }
+      else
+      {
+        sides[side].windows[0].is_damaged = false;
+        sides[side].windows[1].is_damaged = false;
+      }
+    }
+  }
+}
+
 
 void Building::set_active_laser(uint8_t side) {
   Serial.print("Setting active laser !!!! : ");Serial.println(side);
