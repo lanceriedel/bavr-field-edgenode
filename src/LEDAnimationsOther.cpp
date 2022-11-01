@@ -36,13 +36,18 @@ void Path::turnon_path()
 {
   for (int i=0; i<LEDS_PER_PATH; i++)
   {
-    pixels[i] = CRGB::White;
+    pixels[i] = color;
   }
 }
 
 void Path::set_mode(op_mode new_mode)
 {
   mode = new_mode;
+}
+
+void Path::set_color(CRGB new_color)
+{
+  color = new_color;
 }
 
 void Path::compute()
@@ -100,13 +105,18 @@ void Trench::turnon_trench()
 {
   for (int i=0; i<LEDS_PER_TRENCH; i++)
   {
-    pixels[i] = CRGB::White;
+    pixels[i] = color;
   }
 }
 
 void Trench::set_mode(op_mode new_mode)
 {
   mode = new_mode;
+}
+
+void Trench::set_color(CRGB new_color)
+{
+  color = new_color;
 }
 
 void Trench::compute()
@@ -208,10 +218,11 @@ void LEDAnimationsOther::process_all_paths()
 
 }
 
-void LEDAnimationsOther::set_active_trench(uint8_t side) {
+void LEDAnimationsOther::set_active_trench(uint8_t side, CRGB color) {
   Serial.print("Setting active trench !!!! : ");Serial.println(side);
 
   trench[side].set_mode(Trench::turnon);
+  trench[side].set_color(color);
 }
 
 void LEDAnimationsOther::set_inactive_trench(uint8_t side) {
@@ -220,10 +231,12 @@ void LEDAnimationsOther::set_inactive_trench(uint8_t side) {
   trench[side].set_mode(Trench::turnoff);
 }
 
-void LEDAnimationsOther::set_active_path(uint8_t side) {
+void LEDAnimationsOther::set_active_path(uint8_t side, CRGB color) {
   Serial.print("Setting active path !!!! : ");Serial.println(side);
 
   path[side].set_mode(Path::turnon);
+  path[side].set_color(color);
+
 }
 
 void LEDAnimationsOther::set_inactive_path(uint8_t side) {

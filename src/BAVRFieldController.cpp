@@ -439,10 +439,12 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
       Serial.println(error.f_str());
       return;
     }
-    if (json.containsKey("side_id"))
+    if (json.containsKey("side_id") && json.containsKey("color"))
     {
+      long color_int = strtol(json["color"], 0, 16);
+      CRGB color(color_int);
       int side = json["side_id"];
-      led_animations_other->set_active_trench(side);
+      led_animations_other->set_active_trench(side, color);
     }
     valid_message = true;
   }
@@ -471,10 +473,13 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
       Serial.println(error.f_str());
       return;
     }
-    if (json.containsKey("side_id"))
+    if (json.containsKey("side_id")&& json.containsKey("color"))
     {
+      long color_int = strtol(json["color"], 0, 16);
+      CRGB color(color_int);
+
       int side = json["side_id"];
-      led_animations_other->set_active_path(side);
+      led_animations_other->set_active_path(side, color);
     }
     valid_message = true;
   }

@@ -39,7 +39,10 @@ public:
 
 
     void set_mode(op_mode new_mode);
+    void set_color(CRGB new_color);
+
     void compute();
+    CRGB color;
 
 private:
     CRGB pixels[LEDS_PER_TRENCH];
@@ -67,10 +70,12 @@ public:
 
 
     void set_mode(op_mode new_mode);
+    void set_color(CRGB new_color);
     void compute();
 
 private:
     CRGB pixels[LEDS_PER_PATH];
+    CRGB color;
     uint16_t first_pixel;//index of this objects first pixel in the total pixel array
     op_mode mode=turnoff;
 };
@@ -99,10 +104,10 @@ public:
     void process_all_paths();
     void process_all_trenches();
 
-    void set_active_trench(uint8_t side);
+    void set_active_trench(uint8_t side, CRGB color);
     void set_inactive_trench(uint8_t side);
 
-    void set_active_path(uint8_t side);
+    void set_active_path(uint8_t side, CRGB color);
     void set_inactive_path(uint8_t side);
 
     void loop(); //main loop for this task
