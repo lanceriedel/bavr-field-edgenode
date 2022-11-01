@@ -4,10 +4,14 @@
 #include <FastLED.h>
 
 
-#define DATA_PIN_TRENCH_0 A1
-#define DATA_PIN_TRENCH_1  A3
-#define DATA_PIN_FIREPATH_0 5
-#define DATA_PIN_FIREPATH_1 A4
+#define DATA_PIN_TRENCH_0 31
+#define DATA_PIN_TRENCH_1  33
+#define DATA_PIN_TRENCH_2 35
+#define DATA_PIN_TRENCH_3 37
+#define DATA_PIN_FIREPATH_0 39
+#define DATA_PIN_FIREPATH_1 41
+#define DATA_PIN_FIREPATH_2 43
+#define DATA_PIN_FIREPATH_3 45
 
 #define LEDS_PER_PATH 24
 
@@ -83,8 +87,8 @@ private:
 class LEDAnimationsOther
 {
 private:
-    CRGB trenches[2][1 * LEDS_PER_TRENCH];
-    CRGB paths[2][1 * LEDS_PER_PATH];
+    CRGB trenches[4][1 * LEDS_PER_TRENCH];
+    CRGB paths[4][1 * LEDS_PER_PATH];
 
     unsigned long last_render_time = 0;
 
@@ -92,8 +96,8 @@ public:
     LEDAnimationsOther();
     uint32_t crgb_to_hex(CRGB color);
 
-    Trench trench[2];
-    Path path[2];
+    Trench trench[4];
+    Path path[4];
 
 
     void setup();

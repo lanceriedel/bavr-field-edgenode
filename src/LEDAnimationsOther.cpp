@@ -149,9 +149,13 @@ LEDAnimationsOther::LEDAnimationsOther()
 {
   trench[0] = Trench(0);
   trench[1] = Trench(0);
+  trench[2] = Trench(0);
+  trench[3] = Trench(0);
 
   path[0] = Path(0);
   path[1] = Path(0);
+  path[2] = Path(0);
+  path[3] = Path(0);
 
 }
 
@@ -167,18 +171,31 @@ void LEDAnimationsOther::setup()
 
   pinMode(DATA_PIN_FIREPATH_0,OUTPUT);
   pinMode(DATA_PIN_FIREPATH_1,OUTPUT);
+  pinMode(DATA_PIN_FIREPATH_2,OUTPUT);
+  pinMode(DATA_PIN_FIREPATH_3,OUTPUT);
   pinMode(DATA_PIN_TRENCH_0,OUTPUT);
   pinMode(DATA_PIN_TRENCH_1,OUTPUT);
+  pinMode(DATA_PIN_TRENCH_2,OUTPUT);
+  pinMode(DATA_PIN_TRENCH_3,OUTPUT);
 
   FastLED.addLeds<WS2812, DATA_PIN_FIREPATH_0, GRB>(paths[0], LEDS_PER_PATH);
   FastLED.addLeds<WS2812, DATA_PIN_FIREPATH_1, GRB>(paths[1], LEDS_PER_PATH);
+  FastLED.addLeds<WS2812, DATA_PIN_FIREPATH_2, GRB>(paths[2], LEDS_PER_PATH);
+  FastLED.addLeds<WS2812, DATA_PIN_FIREPATH_3, GRB>(paths[3], LEDS_PER_PATH);
 
   FastLED.addLeds<WS2812, DATA_PIN_TRENCH_0, GRB>(trenches[0], LEDS_PER_TRENCH);
   FastLED.addLeds<WS2812, DATA_PIN_TRENCH_1, GRB>(trenches[1], LEDS_PER_TRENCH);
+  FastLED.addLeds<WS2812, DATA_PIN_TRENCH_2, GRB>(trenches[2], LEDS_PER_TRENCH);
+  FastLED.addLeds<WS2812, DATA_PIN_TRENCH_3, GRB>(trenches[3], LEDS_PER_TRENCH);
   path[0].blackout_path();
   path[1].blackout_path();
+   path[2].blackout_path();
+  path[3].blackout_path();
+
   trench[0].blackout_trench();
   trench[1].blackout_trench();
+   trench[2].blackout_trench();
+  trench[3].blackout_trench();
 
 }
 
@@ -198,7 +215,7 @@ void LEDAnimationsOther::process_trench(uint8_t side)
 
 void LEDAnimationsOther::process_all_trenches()
 {
-  int lenSides = 2 ;
+  int lenSides = 4 ;
 
   for (int i = 0; i < lenSides; i++)
   {
@@ -209,7 +226,7 @@ void LEDAnimationsOther::process_all_trenches()
 
 void LEDAnimationsOther::process_all_paths()
 {
-  int lenSides = 2 ;
+  int lenSides = 4 ;
  
   for (int i = 0; i < lenSides; i++)
   {

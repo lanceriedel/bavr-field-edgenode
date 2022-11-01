@@ -62,9 +62,9 @@ void setup()
 
   // set up the LED animations (do this first so we can use the gutters as indicators)
   Serial.println(F("LED Animations setup..."));
-  led_animations = new LEDAnimations();
-  led_animations->setup();
-  led_animations->boot_sequence(1);
+  //led_animations = new LEDAnimations();
+  //led_animations->setup();
+  //led_animations->boot_sequence(1);
 
   // setup uuid
   uuid.init();
@@ -87,22 +87,22 @@ void setup()
   Serial.println(Ethernet.localIP());
   delay(1500); // Allow the hardware to sort itself out
 
-  led_animations->boot_sequence(2);
+  //led_animations->boot_sequence(2);
 
   // set up the ball detector
   Serial.println(F("Ball Detector setup..."));
   ball_detect.ball_init(BALL_DROP_PIN);
-  led_animations->boot_sequence(3);
+  ///led_animations->boot_sequence(3);
 
   // set up the laser detector
   Serial.println(F("Laser Detector setup..."));
   laser_detect.laser_init();
-  led_animations->boot_sequence(4);
+  //led_animations->boot_sequence(4);
 
   // set up the scale (trough)
   Serial.println(F("Trough setup..."));
   trough_detect.trough_init();
-  led_animations->boot_sequence(5);
+  //led_animations->boot_sequence(5);
 
   Serial.println(F("Pubsub setup..."));
   // pubsub init
@@ -110,13 +110,13 @@ void setup()
   client.setCallback(callback);
   client.setBufferSize(1512);
   delay(1500);
-  led_animations->boot_sequence(6);
+  //led_animations->boot_sequence(6);
 
   // comms setup
   Serial.println(F("Comms setup..."));
   byte *suuid = uuid.simpl_uuid;
   field_comms.setup((const char *)suuid, &client);
-  led_animations->boot_sequence(7);
+//  led_animations->boot_sequence(7);
 
   Serial.println(F("Setup Done begin loops..."));
   pinMode(HEATER_PIN,OUTPUT);
@@ -134,7 +134,7 @@ void setup()
 
   Serial.println(F("LED boot_sequence(0)..."));
 
-  led_animations->boot_sequence(0);
+  //led_animations->boot_sequence(0);
 }
 
 
