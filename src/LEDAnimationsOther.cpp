@@ -149,16 +149,27 @@ void LEDAnimationsOther::draw()
 {
   // NOT sure yet
   FastLED.show();
+  Serial.println("draw everything");
 }
 
 void LEDAnimationsOther::setup()
 {
+
+  pinMode(DATA_PIN_FIREPATH_0,OUTPUT);
+  pinMode(DATA_PIN_FIREPATH_1,OUTPUT);
+  pinMode(DATA_PIN_TRENCH_0,OUTPUT);
+  pinMode(DATA_PIN_TRENCH_1,OUTPUT);
 
   FastLED.addLeds<WS2812, DATA_PIN_FIREPATH_0, GRB>(paths[0], LEDS_PER_PATH);
   FastLED.addLeds<WS2812, DATA_PIN_FIREPATH_1, GRB>(paths[1], LEDS_PER_PATH);
 
   FastLED.addLeds<WS2812, DATA_PIN_TRENCH_0, GRB>(trenches[0], LEDS_PER_TRENCH);
   FastLED.addLeds<WS2812, DATA_PIN_TRENCH_1, GRB>(trenches[1], LEDS_PER_TRENCH);
+  path[0].blackout_path();
+  path[1].blackout_path();
+  trench[0].blackout_trench();
+  trench[1].blackout_trench();
+
 }
 
 
@@ -226,10 +237,13 @@ void LEDAnimationsOther::set_inactive_path(uint8_t side) {
 void LEDAnimationsOther::loop()
 {
   unsigned long now = millis();
+       // Serial.print("--oop other animatins: ");Serial.println(last_render_time);
+
   if (now - last_render_time > ANIMATION_REFRESH)
   {
-    process_all_paths();
     process_all_trenches();
+    process_all_paths();
+    
     draw();
     last_render_time = now;
       Serial.print("loop other animatins: ");Serial.println(last_render_time);

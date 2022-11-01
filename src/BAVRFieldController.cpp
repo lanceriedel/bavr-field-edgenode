@@ -645,6 +645,7 @@ void BAVRFieldController::loop()
        hasOtherLEDAnimations = true;
        delete(led_animations);
        led_animations_other = new LEDAnimationsOther();
+       led_animations_other->setup();
  }
 
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][TRENCH]==YES) {

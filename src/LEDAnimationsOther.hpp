@@ -4,10 +4,10 @@
 #include <FastLED.h>
 
 
-#define DATA_PIN_TRENCH_0 1
-#define DATA_PIN_TRENCH_1 41
+#define DATA_PIN_TRENCH_0 A1
+#define DATA_PIN_TRENCH_1  A3
 #define DATA_PIN_FIREPATH_0 5
-#define DATA_PIN_FIREPATH_1 45
+#define DATA_PIN_FIREPATH_1 A4
 
 #define LEDS_PER_PATH 24
 
