@@ -3,6 +3,7 @@
 #include "config.hpp"
 #include "BAVRFieldComms.hpp"
 #include "LEDAnimations.hpp"
+#include "LEDAnimationsOther.hpp"
 #include "LaserDetect.hpp"
 #include "TroughDetect.hpp"
 #include "BallDetect.hpp"
@@ -41,6 +42,8 @@ private:
     void set_config();
     BAVRFieldComms* field_comms;
     LEDAnimations* led_animations;
+    LEDAnimationsOther* led_animations_other;
+
     LaserDetect* laser_detect;
     TroughDetect* trough_detect;
     BallDetect* ball_detect;
@@ -57,22 +60,25 @@ private:
 
     const uint32_t MAX_LASER_INDICATOR = 750;
     uint8_t lastone = 0;
+    boolean hasOtherLEDAnimations = false;
  
 //sensor types - in order are 
 //LASER, TRENCH, BALL
 const uint8_t config_types [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to zero
-  {NO, NO, YES},          //RBO
-  {YES, NO, NO},          //RTO
-  {YES, YES, NO},         //RBM
-  {YES, YES, NO},         //RTM
-  {NO, YES, YES},         //RBI
-  {NO, YES, YES},         //RTI
-  {NO, YES, YES},         //LBI
-  {NO, YES, YES},         //LTI
-  {YES, YES, NO},         //LBM
-  {YES, YES, NO},         //LTM
-  {NO, NO, YES},         //LBO
-  {YES, NO, NO}          //LTO
+  {NO, NO, YES, NO},          //RBO
+  {YES, NO, NO, NO},          //RTO
+  {YES, YES, NO, NO},         //RBM
+  {YES, YES, NO, NO},         //RTM
+  {NO, YES, YES, NO},         //RBI
+  {NO, YES, YES, NO},         //RTI
+  {NO, YES, YES, NO},         //LBI
+  {NO, YES, YES, NO},         //LTI
+  {YES, YES, NO, NO},         //LBM
+  {YES, YES, NO, NO},         //LTM
+  {NO, NO, YES, NO},         //LBO
+  {YES, NO, NO, NO},          //LTO
+  {NO, NO, NO, YES},         //LTT
+  {NO, NO, NO, YES}          //RTT
 };
 
 };

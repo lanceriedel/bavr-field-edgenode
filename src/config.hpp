@@ -20,16 +20,22 @@
 #define LBO  ((uint8_t)10)
 #define LTO  ((uint8_t)11)
 
+#define RTT  ((uint8_t)12)
+#define LTT  ((uint8_t)13)
+
+
 #define UNDEFINED_BLDG ((uint8_t)32)
 
 #define LASER ((uint8_t)0)
 #define TRENCH ((uint8_t)1)
 #define BALL ((uint8_t)2)
+#define LIGHTONLY ((uint8_t)3)
+
 
 #define YES ((uint8_t)1)
 #define NO ((uint8_t)0)
 
-#define NUM_BUILDINGS 12
-#define NUM_SENSORS_TYPES 3
+#define NUM_BUILDINGS 14
+#define NUM_SENSORS_TYPES 4
 
 #endif

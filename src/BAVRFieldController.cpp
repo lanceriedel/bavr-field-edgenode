@@ -157,6 +157,8 @@ void BAVRFieldController::set_config() {
     this->building_name_index = (uint8_t)RBI;
   if (strcmp(node_id, "RTI") == 0)
     this->building_name_index = (uint8_t)RTI;
+  if (strcmp(node_id, "RTT") == 0)
+    this->building_name_index = (uint8_t)RTT;
 
   if (strcmp(node_id, "LBI") == 0)
     this->building_name_index = (uint8_t)LBI;
@@ -170,12 +172,16 @@ void BAVRFieldController::set_config() {
     this->building_name_index = (uint8_t)LBO;
   if (strcmp(node_id, "LTO") == 0)
     this->building_name_index = (uint8_t)LTO;
+  if (strcmp(node_id, "LTT") == 0)
+    this->building_name_index = (uint8_t)LTT;
 
   
   Serial.print(F("building_name_index="));Serial.println(this->building_name_index);
   Serial.print(F("Is Laser="));Serial.println(config_types[this->building_name_index][LASER]);
   Serial.print(F("Is BALL="));Serial.println(config_types[this->building_name_index][BALL]);
   Serial.print(F("Is TRENCH="));Serial.println(config_types[this->building_name_index][TRENCH]);
+    Serial.print(F("Is LIGHTONLY="));Serial.println(config_types[this->building_name_index][LIGHTONLY]);
+
 }
 
 void BAVRFieldController::subscribe_all()
@@ -236,6 +242,34 @@ void BAVRFieldController::subscribe_all()
 
   clean_buffers();
   strcpy(topic, "nodered/updategutter/full/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/pathlightsoff/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
+   clean_buffers();
+  strcpy(topic, "nodered/pathlightson/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
+    clean_buffers();
+  strcpy(topic, "nodered/trenchlightsoff/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+  Serial.print(F("Subscribed to:"));
+  Serial.println(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/trenchlightson/");
   strcat(topic, node_id);
   field_comms->subscribe(topic);
   Serial.print(F("Subscribed to:"));
@@ -396,6 +430,70 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     }
     valid_message = true;
   }
+  else if (prefix("nodered/trenchlightson/", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+    if (json.containsKey("side_id"))
+    {
+      int side = json["side_id"];
+      led_animations_other->set_active_trench(side);
+    }
+    valid_message = true;
+  }
+    else if (prefix("nodered/trenchlightsoff/", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+    if (json.containsKey("side_id"))
+    {
+      int side = json["side_id"];
+      led_animations_other->set_inactive_trench(side);
+    }
+    valid_message = true;
+  }
+   else if (prefix("nodered/pathlightson/", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+    if (json.containsKey("side_id"))
+    {
+      int side = json["side_id"];
+      led_animations_other->set_active_path(side);
+    }
+    valid_message = true;
+  }
+  else if (prefix("nodered/pathlightsoff/", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+    if (json.containsKey("side_id"))
+    {
+      int side = json["side_id"];
+      led_animations_other->set_inactive_path(side);
+    }
+    valid_message = true;
+  }
 
   else if (prefix("nodered/laserdiff", topic))
   {
@@ -540,6 +638,15 @@ void BAVRFieldController::loop()
 {
 
   field_comms->loop();
+
+  if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][LIGHTONLY]==YES && hasOtherLEDAnimations==false)  {
+      Serial.println(F("Switching to other animations..."));
+
+       hasOtherLEDAnimations = true;
+       delete(led_animations);
+       led_animations_other = new LEDAnimationsOther();
+ }
+
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][TRENCH]==YES) {
     trough_detect->trough_detect();
   if (trough_detect->triggered())
@@ -554,10 +661,16 @@ void BAVRFieldController::loop()
       event_trigger("laser", trigger);
     }
   }
-
-  led_animations->loop();
+   if (hasOtherLEDAnimations && led_animations_other!=NULL) {
+     led_animations_other->loop();
+   } else if (hasOtherLEDAnimations==false) {
+     if (led_animations!=NULL) {
+       led_animations->loop();
+     }
+   }
+  
   uint32_t currentms = millis();
-  if (currentms-last_laser_time > MAX_LASER_INDICATOR && lastone!=99) {
+  if (hasOtherLEDAnimations==false && currentms-last_laser_time > MAX_LASER_INDICATOR && lastone!=99) {
       led_animations->building.set_inactive_laser(lastone);
       lastone = 99;
   }
