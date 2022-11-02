@@ -135,14 +135,6 @@ bool prefix(const char *pre, const char *str)
   return strncmp(pre, str, strlen(pre)) == 0;
 }
 
-void BAVRFieldController::reset_match()
-{
-  Serial.println("MATCH RESET!");
-  this->current_fire_score = 0;
-  // reset laser detect light sensor?
-  this->laser_detect->reset();
-}
-
 void BAVRFieldController::set_config() {
   //arduino style -- brute force
   if (strcmp(node_id, "RBO") == 0)
@@ -248,12 +240,14 @@ void BAVRFieldController::subscribe_all()
   field_comms->subscribe(topic);
 }
 
-void BAVRFieldController::reset_all()
+void BAVRFieldController::reset_match()
 {
-  // ball_detect.reset();
-  trough_detect->reset();
-
-  // Subscribe to all messages for this
+  Serial.println("MATCH RESET!");
+  this->current_fire_score = 0;
+  this->laser_detect->reset();
+  this->trough_detect->reset();
+  //this->ball_detect.reset(); //does this need a reset written?
+  this->led_animations->reset();
 }
 
 void BAVRFieldController::set_heater_pin(uint8_t p) {
@@ -335,7 +329,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     Serial.print(F("Node id  reset: "));
     Serial.println(node_id);
     // now that we know who we are, subscribe to our nodeid
-    reset_all();
+    reset_match();
     valid_message = true;
   }
   else if (prefix("nodered/heateron/",topic))
@@ -388,13 +382,12 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
       Serial.println(error.f_str());
       return;
     }
-    if (json.containsKey("side_id") && json.containsKey("activeWindows"))
+    if (json.containsKey("side_id") && json.containsKey("activeWindows") && json.containsKey("damagedWindows"))
     {
       int side = json["side_id"];
       int activeWindows = json["activeWindows"];
-      led_animations->building.set_active_windows(side, activeWindows);
       int damagedWindows = json["damagedWindows"];
-      led_animations->building.set_damaged_windows(side, damagedWindows);
+      led_animations->building.set_active_damaged_windows(side, activeWindows, damagedWindows);
     }
     valid_message = true;
   }
@@ -414,7 +407,6 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     int newdiff = json["DETECTOR_DIFF"];
     Serial.println(F("DETECTOR_DIFF:"));
     Serial.println(newdiff);
-    
     laser_detect->set_diff(newdiff);
     laser_last_raw_reading_message();
     valid_message = true;

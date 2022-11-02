@@ -30,7 +30,6 @@ public:
     void interrupt(int pin);
 
     void subscribe_all();
-    void reset_all();
     void clean_buffers();
     void set_heater_pin(uint8_t p);
     void heater_on();

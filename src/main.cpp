@@ -134,6 +134,7 @@ void setup()
   Serial.println(F("LED boot_sequence(0)..."));
 
   led_animations.boot_sequence(0);
+  led_animations.set_debug();
 }
 
 

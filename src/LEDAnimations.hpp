@@ -107,25 +107,31 @@ private:
 
 class Window
 {
-private:
-    CRGB pixels[STRANDS_PER_WINDOW][LEDS_PER_STRAND];
-    uint16_t first_pixel;//index of this objects first pixel in the total pixel array
-
 public:
     Window();
     Window(uint16_t the_first_pixel);
 
-    bool on_fire = false;
-    bool is_damaged = false;
-
+    enum op_mode
+    {
+        damaged,
+        on_fire,
+        dormant
+    };
 
     void setup();
     void blackout_window(); //remove the fire
-    void fake_fire(); //fill the pixel array with fire
-    void damaged(); //fill the pixel array with damaged
+    void calc_fire(); //fill the pixel array with fire
+    void calc_damage(); //fill the pixel array with damaged
+
+    void set_mode(op_mode mode);
 
     void cp_data(CRGB *buffer); // the buffer that contains the pixels where this window resides
     void compute(); //recompute the pixels for the window based on 'on_fire' or not
+
+private:
+    CRGB pixels[STRANDS_PER_WINDOW][LEDS_PER_STRAND];
+    uint16_t first_pixel;//index of this objects first pixel in the total pixel array
+    op_mode mode;
 };
 
 class Side
@@ -144,6 +150,7 @@ public:
     Side sides[4];
     void set_active_windows(uint8_t side, uint8_t windows); //set which windows are on fire or not
     void set_damaged_windows(uint8_t side, uint8_t windows); //set which windows are damaged or not
+    void set_active_damaged_windows(uint8_t side, uint8_t active, uint8_t damaged);
     void set_gutter_progress(uint8_t progress, CRGB color); //sets the progress for all gutters
     void set_gutter_segment(uint8_t segment, CRGB color);
     void set_gutter_full(CRGB color);
@@ -174,7 +181,8 @@ public:
     void process_all_gutters(); //do this for all gutters
     void process_laser(uint8_t side);// do this for a single laser
     void process_all_lasers();// do this for all sides
-
+    void set_debug();
+    void reset();
     void loop(); //main loop for this task
     void draw(); //write the pixels out to the strip
     void boot_sequence(uint8_t progress);

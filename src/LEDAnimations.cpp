@@ -211,7 +211,7 @@ void Window::setup()
 }
 
 
-void Window::damaged()
+void Window::calc_damage()
 {
   for (int i = 0; i < STRANDS_PER_WINDOW; i++)
   {
@@ -223,7 +223,7 @@ void Window::damaged()
   }
 }
 
-void Window::fake_fire()
+void Window::calc_fire()
 // set arbitrary height, copy in num flames...
 {
   for (int i = 0; i < STRANDS_PER_WINDOW; i++)
@@ -264,18 +264,24 @@ void Window::fake_fire()
   }
 }
 
+void Window::set_mode(op_mode new_mode)
+{
+  mode = new_mode;
+}
+
 void Window::compute()
 {
-  if (is_damaged) {
-    damaged();
-  }
-  else if (on_fire)
+  switch(mode)
   {
-    fake_fire();
-  }
-  else
-  {
-   blackout_window();
+    case damaged:
+      calc_damage();
+      break;
+    case on_fire:
+      calc_fire();
+      break;
+    default:
+      blackout_window();
+      break;
   }
 }
 
@@ -313,18 +319,18 @@ void Building::set_active_windows(uint8_t side, uint8_t windows)
     {
       if (windows > 1)
       {
-        sides[side].windows[0].on_fire = true;
-        sides[side].windows[1].on_fire = true;
+        sides[side].windows[0].set_mode(Window::on_fire);
+        sides[side].windows[1].set_mode(Window::on_fire);
       }
       else if (windows == 1)
       {
-        sides[side].windows[0].on_fire = true;
-        sides[side].windows[1].on_fire = false;
+        sides[side].windows[0].set_mode(Window::on_fire);
+        sides[side].windows[1].set_mode(Window::dormant);
       }
       else
       {
-        sides[side].windows[0].on_fire = false;
-        sides[side].windows[1].on_fire = false;
+        sides[side].windows[0].set_mode(Window::dormant);
+        sides[side].windows[1].set_mode(Window::dormant);
       }
     }
   }
@@ -345,19 +351,62 @@ void Building::set_damaged_windows(uint8_t side, uint8_t windows)
     {
       if (windows > 1)
       {
-        sides[side].windows[0].is_damaged = true;
-        sides[side].windows[1].is_damaged = true;
+        sides[side].windows[0].set_mode(Window::damaged);
+        sides[side].windows[1].set_mode(Window::damaged);
       }
       else if (windows == 1)
       {
-        sides[side].windows[0].is_damaged = true;
-        sides[side].windows[1].is_damaged = false;
+        sides[side].windows[0].set_mode(Window::dormant);
+        sides[side].windows[1].set_mode(Window::damaged);
       }
       else
       {
-        sides[side].windows[0].is_damaged = false;
-        sides[side].windows[1].is_damaged = false;
+        sides[side].windows[0].set_mode(Window::dormant);
+        sides[side].windows[1].set_mode(Window::dormant);
       }
+    }
+  }
+}
+
+void Building::set_active_damaged_windows(uint8_t side, uint8_t active, uint8_t damaged)
+{
+
+  if (side > 0)
+  {
+    side--; //convert for 0 indexing
+    if (side < (sizeof(sides) / sizeof(sides[0])))
+    {
+      if (active == 0 && damaged == 1)
+      {
+        sides[side].windows[0].set_mode(Window::dormant);
+        sides[side].windows[1].set_mode(Window::damaged);
+      }
+      else if (active == 0 && damaged == 2)
+      {
+        sides[side].windows[0].set_mode(Window::damaged);
+        sides[side].windows[1].set_mode(Window::damaged);
+      }
+      else if (active == 1 && damaged == 0)
+      {
+        sides[side].windows[0].set_mode(Window::on_fire);
+        sides[side].windows[1].set_mode(Window::dormant);
+      }
+      else if (active == 1 && damaged == 1)
+      {
+        sides[side].windows[0].set_mode(Window::on_fire);
+        sides[side].windows[1].set_mode(Window::damaged);
+      }
+      else if (active == 2 && damaged == 0)
+      {
+        sides[side].windows[0].set_mode(Window::on_fire);
+        sides[side].windows[1].set_mode(Window::on_fire);
+      }
+      else
+      {
+        sides[side].windows[0].set_mode(Window::dormant);
+        sides[side].windows[1].set_mode(Window::dormant);
+      }
+
     }
   }
 }
@@ -493,6 +542,36 @@ void LEDAnimations::process_all_gutters()
   for (int i = 0; i < lenSides; i++)
   {
     process_gutter(i);
+  }
+}
+
+void LEDAnimations::set_debug()
+{
+  uint8_t lenWindows = sizeof(building.sides[0].windows) / sizeof(building.sides[0].windows[0]);
+  uint8_t lenSides = sizeof(building.sides) / sizeof(building.sides[0]);
+  for (int i = 0; i < lenSides; i++)
+  {
+    CRGB debug_color(0x00FF00);
+    building.sides[i].gutter.set_notify(debug_color);
+    for (int j = 0; j < lenWindows; j++)
+    {
+      building.sides[i].windows[j].set_mode(Window::on_fire);
+    }
+  }
+}
+
+void LEDAnimations::reset()
+{
+ uint8_t lenWindows = sizeof(building.sides[0].windows) / sizeof(building.sides[0].windows[0]);
+  uint8_t lenSides = sizeof(building.sides) / sizeof(building.sides[0]);
+  for (int i = 0; i < lenSides; i++)
+  {
+    building.sides[i].gutter.blackout_gutter();
+    for (int j = 0; j < lenWindows; j++)
+    {
+      building.sides[i].windows[j].set_mode(Window::dormant);
+    }
+    building.sides[i].laser.set_mode(Laser::turnoff);
   }
 }
 
