@@ -16,11 +16,11 @@ public:
     bool message(const char* topic, const char* messagestr);
     void callback(char* topic, byte* payload, unsigned int length);
 
+    bool needs_subscriptions = false;
 
 private:
     const char* unique_id;
     PubSubClient* client;
-
 };
 
 #endif
