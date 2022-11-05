@@ -19,7 +19,7 @@
 
 #define LEDS_PER_GUTTER 24
 
-#define LEDS_PER_LASER 5
+#define LEDS_PER_LASER 1
 
 #define LASER_REFRESH 750
 #define ANIMATION_REFRESH 250

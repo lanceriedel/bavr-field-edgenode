@@ -31,22 +31,23 @@ void BallDetect::ball_trigger_interrupt() {
 
 
 bool BallDetect::ball_detect() {
+      Serial.println(F("Check ball detect...."));
 
   //Not needed if using trigger
 
-  sensorState = digitalRead(pin);
+  // sensorState = digitalRead(pin);
 
-  if (sensorState && !lastState) {
-    lastState = sensorState;
-    hastriggered = false;
-    Serial.println("Unbroken");
-  }  else if (!sensorState && lastState) {
-     Serial.println("Broken");
-  //    //ball_trigger();
-     lastState = sensorState;
-     // return true;
+  // if (sensorState && !lastState) {
+  //   lastState = sensorState;
+  //   hastriggered = false;
+  //   Serial.println("Unbroken");
+  // }  else if (!sensorState && lastState) {
+  //    Serial.println("Broken");
+  // //    //ball_trigger();
+  //    lastState = sensorState;
+  //    // return true;
 
-  }  
+  // }  
   if (hastriggered == true) {
       hastriggered = false;
       Serial.println(F("Check ball detect true"));
