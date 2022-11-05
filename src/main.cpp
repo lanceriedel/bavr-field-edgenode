@@ -4,6 +4,7 @@ to connect to an MQTT host at IPAddress server(192, 168, 1, 112) (or change appr
 
 NOTE -  no delays should be anywhere in the loops -- will work to make sure that this is true especially in LED animations
 
+
 */
 
 #include <SPI.h>
