@@ -180,6 +180,7 @@ void BAVRFieldController::set_config() {
 
 void BAVRFieldController::subscribe_all()
 {
+  // Subscribe to all messages for this
   clean_buffers(); // clean buffers before use
   strcpy(topic, "nodered/firescore/");
   strcat(topic, node_id);
@@ -241,9 +242,10 @@ void BAVRFieldController::subscribe_all()
   Serial.print(F("Subscribed to:"));
   Serial.println(topic);
 
-
-
-  // Subscribe to all messages for this
+  // subscribe to nodered/reset/match
+  clean_buffers();
+  strcpy(topic, "nodered/reset/match");
+  field_comms->subscribe(topic);
 }
 
 void BAVRFieldController::reset_all()
@@ -366,7 +368,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     Serial.println(node_id);
     // now that we know who we are, subscribe to our nodeid
     set_config();
-    subscribe_all();
+    configured = true;
     valid_message = true;
   }
 
@@ -391,6 +393,8 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
       int side = json["side_id"];
       int activeWindows = json["activeWindows"];
       led_animations->building.set_active_windows(side, activeWindows);
+      int damagedWindows = json["damagedWindows"];
+      led_animations->building.set_damaged_windows(side, damagedWindows);
     }
     valid_message = true;
   }
@@ -538,6 +542,12 @@ void BAVRFieldController::loop()
 {
 
   field_comms->loop();
+  //handle case where we had to re-connect, need to re-sub to everything
+  if (configured && field_comms->needs_subscriptions)
+  {
+    subscribe_all();
+    field_comms->needs_subscriptions = false;
+  }
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][TRENCH]==YES) {
     trough_detect->trough_detect();
   if (trough_detect->triggered())

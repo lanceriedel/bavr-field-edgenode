@@ -57,7 +57,8 @@ private:
 
     const uint32_t MAX_LASER_INDICATOR = 750;
     uint8_t lastone = 0;
- 
+
+    bool configured = false;
 //sensor types - in order are 
 //LASER, TRENCH, BALL
 const uint8_t config_types [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to zero
