@@ -31,7 +31,7 @@ void BallDetect::ball_trigger_interrupt() {
 
 
 bool BallDetect::ball_detect() {
-      Serial.println(F("Check ball detect...."));
+      //Serial.println(F("Check ball detect...."));
 
   //Not needed if using trigger
 
