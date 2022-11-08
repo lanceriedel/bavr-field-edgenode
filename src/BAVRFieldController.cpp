@@ -51,7 +51,7 @@ void BAVRFieldController::heartbeat_message()
   json["timestamp"] = millis();
   json["uuid"] = uuid;
   json["index"]= building_name_index;
-  json["cur_fs"] = current_fire_score;
+  json["heater_on"] = isheater_on;
 
   serializeJson(json, message);
 
@@ -242,6 +242,7 @@ void BAVRFieldController::heater_on()
   Serial.print(F("Turn Heater On pin:  "));
   Serial.println(HEATER_PIN);
   digitalWrite(HEATER_PIN,HIGH);
+  isheater_on = true;
 }
 
 void BAVRFieldController::heater_off()
@@ -251,6 +252,7 @@ void BAVRFieldController::heater_off()
   if (HEATER_PIN==56) {
     Serial.println("Serial is 56");
   }
+  isheater_on = false;
   digitalWrite(HEATER_PIN,LOW);
 }
 

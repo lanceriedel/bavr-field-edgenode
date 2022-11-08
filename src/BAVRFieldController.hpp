@@ -46,19 +46,16 @@ private:
     char message[512];
     char uuid[32];
     uint8_t heater_pin;
+    bool isheater_on =false;
 
     uint16_t current_fire_score = 0;
     uint8_t building_name_index;
     uint32_t last_laser_time;
-
     uint32_t last_heartbeat_time =0;
     const uint32_t MAX_HEARTBEAT_WAIT =30000;
-
     const uint32_t MAX_LASER_INDICATOR = 750;
     uint8_t lastone = 0;
     uint8_t thisone = 0;
-
-
     bool configured = false;
 //sensor types - in order are 
 //LASER, TRENCH, BALL
