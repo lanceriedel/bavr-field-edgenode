@@ -11,7 +11,6 @@ NOTE -  no delays should be anywhere in the loops -- will work to make sure that
 #include <PubSubClient.h>
 #include <Wire.h>
 #include "BallDetect.hpp"
-#include "TroughDetect.hpp"
 #include "LaserDetect.hpp"
 #include "LEDAnimations.hpp"
 #include "BAVRFieldComms.hpp"
@@ -37,9 +36,6 @@ BallDetect ball_detect;
 
 // laser detector
 LaserDetect laser_detect;
-
-// trough
-TroughDetect trough_detect;
 
 
 // Where the real work gets handed out
@@ -98,9 +94,7 @@ void setup()
   laser_detect.laser_init();
   led_animations.boot_sequence(4);
 
-  // set up the scale (trough)
-  Serial.println(F("Trough setup..."));
-  trough_detect.trough_init();
+
   led_animations.boot_sequence(5);
 
   Serial.println(F("Pubsub setup..."));
@@ -120,7 +114,7 @@ void setup()
   Serial.println(F("Setup Done begin loops..."));
   pinMode(HEATER_PIN,OUTPUT);
 
-  controller = new BAVRFieldController(&led_animations, &laser_detect, &field_comms, &trough_detect, &ball_detect);
+  controller = new BAVRFieldController(&led_animations, &laser_detect, &field_comms, &ball_detect);
   Serial.println(F("Controller created..."));
 
   controller->set_heater_pin(HEATER_PIN);

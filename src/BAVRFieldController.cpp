@@ -11,27 +11,26 @@ void BAVRFieldController::clean_buffers()
 }
 
 BAVRFieldController::BAVRFieldController(LEDAnimations *led_animations, 
-LaserDetect *laser_detect, BAVRFieldComms *field_comms, TroughDetect *trough_detect, 
+LaserDetect *laser_detect, BAVRFieldComms *field_comms, 
 BallDetect *ball_detect)
 {
   this->laser_detect = laser_detect;
   this->led_animations = led_animations;
   this->field_comms = field_comms;
-  this->trough_detect = trough_detect;
   this->ball_detect = ball_detect;
 
 
   strcpy(node_id, "unnamed-bldg");
 }
 
-void BAVRFieldController::laser_hit_message(int hits, int whichone)
+void BAVRFieldController::laser_hit_message(int hits)
 {
 
   clean_buffers(); // clean buffers before use
   json["num_hits"] = hits;
   json["timestamp"] = millis();
   json["BUILDING_NAME"] = (const char *)node_id;
-  json["side_id"] = whichone + 1;
+  json["side_id"] = 1;
 
   serializeJson(json, message);
 
@@ -43,23 +42,40 @@ void BAVRFieldController::laser_hit_message(int hits, int whichone)
   field_comms->message(topic, (const char *)message);
 }
 
+void BAVRFieldController::heartbeat_message()
+{
+
+  clean_buffers(); // clean buffers before use
+  
+  json["bldg"] = (const char *)node_id;
+  json["timestamp"] = millis();
+  json["uuid"] = uuid;
+  json["index"]= building_name_index;
+  json["cur_fs"] = current_fire_score;
+
+  serializeJson(json, message);
+
+  strcpy(topic, "edgenode/heartbeat/");
+  strcat(topic, node_id);
+
+  // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
+
+  field_comms->message(topic, (const char *)message);
+}
+
 void BAVRFieldController::laser_last_raw_reading_message()
 {
 
   clean_buffers(); // clean buffers before use
-  uint32_t * avgk = laser_detect->get_lastest_avgk();
-  uint16_t * latest_readings = laser_detect->get_lastest_readings();
+  uint32_t  avgk = laser_detect->get_lastest_avgk();
+  uint16_t  latest_readings = laser_detect->get_lastest_readings();
   
   json["bldg"] = (const char *)node_id;
-  json["k_1"] = avgk[0];
-  json["k_2"] = avgk[1];
-  json["k_3"] = avgk[2];
-  json["k_4"] = avgk[3];
+  json["k_1"] = avgk;
 
-  json["r_1"] = latest_readings[0];
-  json["r_2"] = latest_readings[1];
-  json["r_3"] = latest_readings[2];
-  json["r_4"] = latest_readings[3];
+
+  json["r_1"] = latest_readings;
+
 
   serializeJson(json, message);
 
@@ -71,24 +87,6 @@ void BAVRFieldController::laser_last_raw_reading_message()
   field_comms->message(topic, (const char *)message);
 }
 
-void BAVRFieldController::last_weight_tare_reading_message()
-{
-
-  clean_buffers(); // clean buffers before use
-  long last_stable_tare = trough_detect->get_last_weight_stable();
-  
-  json["bldg"] = (const char *)node_id;
-  json["weight_tare"] = last_stable_tare;
- 
-  serializeJson(json, message);
-
-  strcpy(topic, "edgenode/latesttare/");
-  strcat(topic, node_id);
-
-  // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
-
-  field_comms->message(topic, (const char *)message);
-}
 
 void BAVRFieldController::ball_detect_message(int drops)
 {
@@ -103,27 +101,6 @@ void BAVRFieldController::ball_detect_message(int drops)
 
   strcpy(topic, "edgenode/balldrop/");
   strcat(topic, node_id);
-
-  // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
-
-  field_comms->message(topic, (const char *)message);
-}
-
-void BAVRFieldController::trough_detect_message(int bags)
-{
-
-  clean_buffers(); // clean buffers before use
-  json["num_bags"] = bags;
-  json["timestamp"] = millis();
-  json["BUILDING_NAME"] = (const char *)node_id;
-  json["side_id"] = 0;
-
-  serializeJson(json, message);
-
-  strcpy(topic, "edgenode/troughbags/");
-  strcat(topic, node_id);
-
-  // led_animations->windows[1].on_fire = !led_animations->windows[1].on_fire;
 
   // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
 
@@ -251,7 +228,6 @@ void BAVRFieldController::subscribe_all()
 void BAVRFieldController::reset_all()
 {
   // ball_detect.reset();
-  trough_detect->reset();
 
   // Subscribe to all messages for this
 }
@@ -420,20 +396,6 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     valid_message = true;
   }
 
-  else if (prefix("nodered/weighttare", topic))
-  {
-    DeserializationError error = deserializeJson(json, message);
-
-    // Test if parsing succeeds.
-    if (error)
-    {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      return;
-    }
-    last_weight_tare_reading_message();
-    valid_message = true;
-  }
 
   else if (prefix("nodered/updategutter/bysegment/", topic))
   {
@@ -508,30 +470,31 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
   }
 }
 
-void BAVRFieldController::event_trigger(const char *event, int whichone)
+void BAVRFieldController::event_trigger(const char *event)
 {
 
   // TODO:
   // Create a backoff and drop events if something is flooding the system
   if (strcmp(event, "laser") == 0)
   {
-    this->laser_hit_message(1, whichone);
-    uint8_t thisone = (uint8_t) whichone;
+    this->laser_hit_message(1);
     Serial.println(F("Turning on laser"));
     led_animations->building.set_inactive_laser(lastone);
     led_animations->building.set_active_laser(thisone);
     lastone = thisone;
     last_laser_time = millis();
   }
-  if (strcmp(event, "trough") == 0)
-  {
-    this->trough_detect_message(trough_detect->bag_num());
-    // Serial.println(F("Controller: Trough event triggered"));
-    // field_comms->message("avr-building/1/trough", String(trough_detect->bag_num())); //todo: update to match schema
-  }
+  
   if (strcmp(event, "ball") == 0)
   {
     this->ball_detect_message(1);
+    // Serial.println(F("Controller: Trough event triggered"));
+    // field_comms->message("avr-building/1/trough", String(trough_detect->bag_num())); //todo: update to match schema
+  }
+
+    if (strcmp(event, "heartbeat") == 0)
+  {
+    this->heartbeat_message();
     // Serial.println(F("Controller: Trough event triggered"));
     // field_comms->message("avr-building/1/trough", String(trough_detect->bag_num())); //todo: update to match schema
   }
@@ -548,18 +511,14 @@ void BAVRFieldController::loop()
     subscribe_all();
     field_comms->needs_subscriptions = false;
   }
-  if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][TRENCH]==YES) {
-    trough_detect->trough_detect();
-  if (trough_detect->triggered())
-      event_trigger("trough", 0);
-  }
+
 //Serial.print(F("building name index:"));Serial.println((uint16_t)this->building_name_index);
 //Serial.print("Is Laser:");Serial.println(config_types[building_name_index][LASER]);
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][LASER]==YES) {
     int8_t trigger = laser_detect->laser_detect();
     if (trigger >= 0)
     {
-      event_trigger("laser", trigger);
+      event_trigger("laser");
     }
   }
 
@@ -572,8 +531,13 @@ void BAVRFieldController::loop()
 
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][BALL]==YES) {
     if (ball_detect->ball_detect())
-      event_trigger("ball", 0);
-    }
+      event_trigger("ball");
+  }
+
+  if (currentms-last_heartbeat_time > MAX_HEARTBEAT_WAIT) {
+      last_heartbeat_time = currentms;
+      event_trigger("heartbeat");
+  }
 }
 
 boolean BAVRFieldController::setup(const char *unique_id)

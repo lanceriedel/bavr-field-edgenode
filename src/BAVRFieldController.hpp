@@ -4,7 +4,6 @@
 #include "BAVRFieldComms.hpp"
 #include "LEDAnimations.hpp"
 #include "LaserDetect.hpp"
-#include "TroughDetect.hpp"
 #include "BallDetect.hpp"
 #include <ArduinoJson.h>
 
@@ -14,18 +13,16 @@ public:
     BAVRFieldController(LEDAnimations* led_animations, 
     LaserDetect* laser_detect, 
     BAVRFieldComms* field_comms,
-     TroughDetect* trough_detect, 
      BallDetect* ball_detect);
     boolean setup(const char* unique_id);
     void loop();
     void callback(char* topic, byte* payload, unsigned int length);
     void reset_match();
-    void event_trigger(const char* event, int whichone);
-    void laser_hit_message(int hits, int whichone);
+    void event_trigger(const char* event);
+    void laser_hit_message(int hits);
     void ball_detect_message(int drops);
-    void trough_detect_message(int bags);
     void laser_last_raw_reading_message();
-    void last_weight_tare_reading_message();
+    void heartbeat_message();
 
     void interrupt(int pin);
 
@@ -42,7 +39,6 @@ private:
     BAVRFieldComms* field_comms;
     LEDAnimations* led_animations;
     LaserDetect* laser_detect;
-    TroughDetect* trough_detect;
     BallDetect* ball_detect;
     char node_id[128];
     StaticJsonDocument<512> json;
@@ -55,8 +51,13 @@ private:
     uint8_t building_name_index;
     uint32_t last_laser_time;
 
+    uint32_t last_heartbeat_time =0;
+    const uint32_t MAX_HEARTBEAT_WAIT =30000;
+
     const uint32_t MAX_LASER_INDICATOR = 750;
     uint8_t lastone = 0;
+    uint8_t thisone = 0;
+
 
     bool configured = false;
 //sensor types - in order are 
