@@ -17,6 +17,7 @@ NOTE -  no delays should be anywhere in the loops -- will work to make sure that
 #include "BAVRFieldController.hpp"
 #include "ether.hpp"
 #include "uuid.hpp"
+#include "BAVRFreeMemory.hpp"
 
 // UUID
 UUID uuid;
@@ -63,7 +64,7 @@ void setup()
 
   // setup uuid
   uuid.init();
-  Serial.println("Board ID Comes from https://github.com/lanceriedel/burn-uuid-eeprom");
+  Serial.println(F("Board ID Comes from https://github.com/lanceriedel/burn-uuid-eeprom"));
   Serial.print(F("BOARD_ID:"));
   Serial.println(((char *)uuid.simpl_uuid));
 
@@ -151,9 +152,11 @@ void loop()
   if (millis() - last_print_time > 2000)
   {
     last_print_time = millis();
-    Serial.print("LOOPTIME: ");
+    Serial.print(F("LOOPTIME: "));
     Serial.print(duration);
-    Serial.print("\tWORST LOOP TIME: ");
-    Serial.println(worst_loop_time);
+    Serial.print(F("\tWORST LOOP TIME: "));
+    Serial.print(worst_loop_time);
+    Serial.print(F("\tFREE MEMORY: "));
+    Serial.println(freeMemory());
   }
 }

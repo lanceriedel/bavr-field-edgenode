@@ -22,17 +22,17 @@ void BAVRFieldComms::reconnect() {
     // Attempt to connect
 
     if (client->connect(unique_id)) {
-      Serial.println("connected");
+      Serial.println(F("connected"));
       needs_subscriptions = true;
     } else {
-      Serial.print("failed, rc=");
+      Serial.print(F("failed, rc="));
       Serial.print(client->state());
-      Serial.println(" try again in 5 seconds");
+      Serial.println(F(" try again in 5 seconds"));
       // Wait 5 seconds before retrying
       delay(5000);
 
     }
-    Serial.print("Finished MQTT connection...");
+    Serial.print(F("Finished MQTT connection..."));
 
   }
 }

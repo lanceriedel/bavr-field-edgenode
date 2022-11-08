@@ -1,5 +1,6 @@
 #include "BAVRFieldController.hpp"
 #include "config.hpp"
+#include "BAVRFreeMemory.hpp"
 
 
 void BAVRFieldController::clean_buffers()
@@ -52,6 +53,7 @@ void BAVRFieldController::heartbeat_message()
   json["uuid"] = uuid;
   json["index"]= building_name_index;
   json["heater_on"] = isheater_on;
+  json["mem"] = freeMemory();
 
   serializeJson(json, message);
 
@@ -114,7 +116,7 @@ bool prefix(const char *pre, const char *str)
 
 void BAVRFieldController::reset_match()
 {
-  Serial.println("MATCH RESET!");
+  Serial.println(F("MATCH RESET!"));
   this->current_fire_score = 0;
   // reset laser detect light sensor?
   this->laser_detect->reset();
@@ -250,7 +252,7 @@ void BAVRFieldController::heater_off()
   Serial.print(F("Turn Heater OFF pin:  "));
   Serial.println(HEATER_PIN);
   if (HEATER_PIN==56) {
-    Serial.println("Serial is 56");
+    Serial.println(F("Serial is 56"));
   }
   isheater_on = false;
   digitalWrite(HEATER_PIN,LOW);
@@ -270,6 +272,13 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
 {
 
   bool valid_message = false;
+  if (length > sizeof(message)/sizeof(message[0]))
+  {
+    //we got too long of a message
+    Serial.print(F("GOT TOO LONG OF A MESSAGE TO PARSE: "));
+    Serial.println(length);
+    return;
+  }
 
   clean_buffers(); // clean buffers before use
 
@@ -452,7 +461,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
 
     if (json.containsKey("color"))
     {
-      Serial.println("Json has a color");
+      Serial.println(F("Json has a color"));
       long color_int = strtol(json["color"],0, 16L);
       Serial.println(color_int, 16);
       CRGB color(color_int);

@@ -364,13 +364,13 @@ void Building::set_damaged_windows(uint8_t side, uint8_t windows)
 
 
 void Building::set_active_laser(uint8_t side) {
-  Serial.print("Setting active laser !!!! : ");Serial.println(side);
+  Serial.print(F("Setting active laser !!!! : "));Serial.println(side);
 
   sides[side].laser.set_mode(Laser::turnon);
 }
 
 void Building::set_inactive_laser(uint8_t side) {
-  Serial.print("Setting inactive laser in!!!! : ");Serial.println(side);
+  Serial.print(F("Setting inactive laser in!!!! : "));Serial.println(side);
 
   sides[side].laser.set_mode(Laser::turnoff);
 }
