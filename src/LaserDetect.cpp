@@ -93,10 +93,18 @@ uint32_t  LaserDetect::get_lastest_avgk() {
 //         whichone = hastriggered;
 //         hastriggered = -1;
 //         return whichone;
-//     } 
-//   } 
+//     }
+//   }
 // }
 
+
+uint32_t LaserDetect::get_latest_diff() {
+  return last_diff;
+}
+
+uint32_t LaserDetect::get_latest_triggered_diff() {
+  return last_triggered_diff;
+}
 
 void LaserDetect::laser_trigger() {
 uint32_t ts = millis()-lasttrigger;
@@ -146,10 +154,12 @@ int8_t LaserDetect::laser_detect() {
   //if ((abs(avg_r-r))>100) {
     // Serial.print(F("Sensor# ["));Serial.print(i);Serial.print(F("] DIFF K: ")); Serial.print(dff_temp); Serial.println(" ");
 
+  last_diff = dff_temp;
   if (dff_temp>MAX_TEMP_DIFF) {
     Serial.println(F(" "));
     Serial.print(F("DIFF K: ")); Serial.print(dff_temp); Serial.print(" raw:"); Serial.print(colorTemp);
     Serial.println(F(" lux:")); Serial.print(lux);
+    last_triggered_diff  = dff_temp;
     laser_trigger();
     return 1;
   } else if (dff_temp>100) {
