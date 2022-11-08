@@ -5,6 +5,7 @@
 
 //heater
 #define HEATER_PIN A2
+#define LASER_LIGHT_PIN 41
 
 #define RBO  ((uint8_t)0)
 #define RTO  ((uint8_t)1)
@@ -31,5 +32,7 @@
 
 #define NUM_BUILDINGS 12
 #define NUM_SENSORS_TYPES 3
+
+
 
 #endif

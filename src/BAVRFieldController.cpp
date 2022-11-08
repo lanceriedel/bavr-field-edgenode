@@ -53,6 +53,9 @@ void BAVRFieldController::heartbeat_message()
   json["uuid"] = uuid;
   json["index"]= building_name_index;
   json["heater_on"] = isheater_on;
+  json["latest_diff"] = laser_detect->get_latest_diff();
+  json["latest_triggered_diff"] = laser_detect->get_latest_triggered_diff();
+
   json["mem"] = freeMemory();
 
   serializeJson(json, message);
@@ -118,6 +121,7 @@ void BAVRFieldController::reset_match()
 {
   Serial.println(F("MATCH RESET!"));
   this->current_fire_score = 0;
+  this->heater_off();
   // reset laser detect light sensor?
   this->laser_detect->reset();
 }
@@ -490,8 +494,10 @@ void BAVRFieldController::event_trigger(const char *event)
   {
     this->laser_hit_message(1);
     Serial.println(F("Turning on laser"));
-    led_animations->building.set_inactive_laser(lastone);
-    led_animations->building.set_active_laser(thisone);
+    // led_animations->building.set_inactive_laser(lastone);
+    // led_animations->building.set_active_laser(thisone);
+    digitalWrite(LASER_LIGHT_PIN,HIGH);
+
     lastone = thisone;
     last_laser_time = millis();
   }
@@ -535,9 +541,11 @@ void BAVRFieldController::loop()
 
   led_animations->loop();
   uint32_t currentms = millis();
-  if (currentms-last_laser_time > MAX_LASER_INDICATOR && lastone!=99) {
-      led_animations->building.set_inactive_laser(lastone);
-      lastone = 99;
+  uint32_t diff_ms = currentms-last_laser_time ;
+  if (diff_ms> MAX_LASER_INDICATOR ) {
+      //led_animations->building.set_inactive_laser(lastone);
+      //Serial.println(diff_ms);
+      digitalWrite(LASER_LIGHT_PIN,LOW);
   }
 
   if (building_name_index<UNDEFINED_BLDG && config_types[building_name_index][BALL]==YES) {
