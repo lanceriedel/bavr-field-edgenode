@@ -5,7 +5,6 @@
 
 //heater
 #define HEATER_PIN A2
-#define LASER_LIGHT_PIN 41
 #define BALL_DROP_PIN 2
 
 #define RBO  ((uint8_t)0)
@@ -44,8 +43,8 @@ static const int mqtt_port = 1883;
 #define LED_PIN_STRIP2 A0
 #define LENGTH_STRIPS 30
 
-#define LED_PIN_MOS1 A4
-#define LED_PIN_MOS2 6
-#define LED_PIN_MOS3 7
+#define LED_PIN_MOS1 A1
+#define LED_PIN_MOS2 A2
+#define LED_PIN_MOS3 A3
 
 #endif

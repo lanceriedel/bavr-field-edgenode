@@ -117,8 +117,8 @@ void setup()
   digitalWrite(HEATER_PIN, LOW);
 
 
-  pinMode(LASER_LIGHT_PIN,OUTPUT);
-  digitalWrite(LASER_LIGHT_PIN, LOW);
+  pinMode(LED_PIN_MOS1,OUTPUT);
+  // digitalWrite(LASER_LIGHT_PIN, LOW);
 
   controller = new BAVRFieldController(&led_animations, &laser_detect, &field_comms, &ball_detect);
   Serial.println(F("Controller created..."));

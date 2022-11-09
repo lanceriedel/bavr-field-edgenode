@@ -96,6 +96,11 @@ void LEDAnimations::setup()
     leds[0] = LED(LED_PIN_MOS1);
     leds[1] = LED(LED_PIN_MOS2);
     leds[2] = LED(LED_PIN_MOS3);
+    pinMode(LED_PIN_MOS1,OUTPUT);
+    pinMode(LED_PIN_MOS2,OUTPUT);
+    pinMode(LED_PIN_MOS3,OUTPUT);
+
+
 
     strips[0] = LEDStrip();
     FastLED.addLeds<WS2812, LED_PIN_STRIP1, GRB>(&strips[0].pixels[0], strips[0].length());
