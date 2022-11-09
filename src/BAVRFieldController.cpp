@@ -423,6 +423,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     // pixels key of the json object and if there isnt, well then..
     // we are going to violate some memory safety rules.
     Serial.println(F("ABOUT TO UPDATE PIXELS"));
+    Serial.println((strip_index));
     for (int i=0; i<30; i++)
     {
       int dec_val = str[i] - 48; //magic conversion from ascii val to decimal

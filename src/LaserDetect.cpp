@@ -19,12 +19,15 @@ void LaserDetect::calibrate() {
 
   int numvalues = avg_values_countdown;
   int i = avg_values_countdown;
+  int32_t last_k = 99999;
+  int f = 0;
   while (i) {
       uint16_t r, g, b, c, colorTemp;
       int32_t lux;
       tcs.getRawData(&r, &g, &b, &c);
       // colorTemp = tcs.calculateColorTemperature(r, g, b);
       colorTemp = tcs.calculateColorTemperature_dn40(r, g, b, c);
+
       lux = tcs.calculateLux(r, g, b);
 
       Serial.print(F("Color Temp: ")); Serial.print(colorTemp, DEC); Serial.print(F(" K - "));
@@ -33,10 +36,22 @@ void LaserDetect::calibrate() {
       // Serial.print(F("R: ")); Serial.print(r, DEC); Serial.print(F(" -"));
       // Serial.print(F("G: ")); Serial.print(g, DEC); Serial.print(F(" -"));
       // Serial.print(F("B: ")); Serial.print(b, DEC); Serial.println(F(" -"));
+      if (last_k == 99999) {
+        last_k= colorTemp;
+      }
+      if (abs(colorTemp-last_k) > 1000 && f<10)  {
+        i = avg_values_countdown;
+        total_k = 0;
+        total_r = 0;
+        Serial.print(F("Bad reading, restarting calibration... ")); Serial.println(F(" "));
+        f++;
+        last_k = colorTemp;
+        continue;
+      }
 
-    
       total_k+=colorTemp;
       total_r+=r;
+      last_k = colorTemp;
       delay(50);
       Serial.println(F(" "));
       Serial.print(F("Calibrating... ")); Serial.println(F(" "));
