@@ -10,10 +10,15 @@
 class BAVRFieldController
 {
 public:
-    BAVRFieldController(LEDAnimations* led_animations, 
-    LaserDetect* laser_detect, 
+    BAVRFieldController(LEDAnimations* led_animations,
+    LaserDetect* laser_detect,
     BAVRFieldComms* field_comms,
-     BallDetect* ball_detect);
+    BallDetect* ball_detect);
+
+    int worst_memory = 9999;
+
+    void check_memory();
+
     boolean setup(const char* unique_id);
     void loop();
     void callback(char* topic, byte* payload, unsigned int length);
@@ -32,7 +37,7 @@ public:
     void set_heater_pin(uint8_t p);
     void heater_on();
     void heater_off();
-    
+
 
 private:
     void set_config();

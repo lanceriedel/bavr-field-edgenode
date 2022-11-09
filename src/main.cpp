@@ -18,6 +18,7 @@ NOTE -  no delays should be anywhere in the loops -- will work to make sure that
 #include "ether.hpp"
 #include "uuid.hpp"
 #include "BAVRFreeMemory.hpp"
+#include "config.hpp"
 
 // UUID
 UUID uuid;
@@ -26,7 +27,7 @@ UUID uuid;
 EthernetClient ethClient;
 PubSubClient client(ethClient);
 BAVRFieldComms field_comms;
-IPAddress server(192, 168, 1, 112); // MQTT server
+IPAddress ip_addr(mqtt_server[0],mqtt_server[1],mqtt_server[2],mqtt_server[3]); // MQTT server
 
 // for leds
 LEDAnimations led_animations;
@@ -99,7 +100,7 @@ void setup()
 
   Serial.println(F("Pubsub setup..."));
   // pubsub init
-  client.setServer(server, 1883);
+  client.setServer(ip_addr, mqtt_port);
   client.setCallback(callback);
   client.setBufferSize(1024);
   delay(1500);
@@ -116,8 +117,8 @@ void setup()
   digitalWrite(HEATER_PIN, LOW);
 
 
-  pinMode(LASER_LIGHT_PIN,OUTPUT);
-  digitalWrite(LASER_LIGHT_PIN, LOW);
+  pinMode(LED_PIN_MOS1,OUTPUT);
+  // digitalWrite(LASER_LIGHT_PIN, LOW);
 
   controller = new BAVRFieldController(&led_animations, &laser_detect, &field_comms, &ball_detect);
   Serial.println(F("Controller created..."));
@@ -160,7 +161,7 @@ void loop()
     Serial.print(duration);
     Serial.print(F("\tWORST LOOP TIME: "));
     Serial.print(worst_loop_time);
-    Serial.print(F("\tFREE MEMORY: "));
-    Serial.println(freeMemory());
+    Serial.print(F("\tWORST MEMORY: "));
+    Serial.println(controller->worst_memory);
   }
 }
