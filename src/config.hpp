@@ -3,9 +3,7 @@
 #include <pins_arduino.h>
 //config.h
 
-//heater
-#define HEATER_PIN A2
-#define BALL_DROP_PIN 2
+
 
 #define RBO  ((uint8_t)0)
 #define RTO  ((uint8_t)1)
@@ -39,6 +37,8 @@ static const int mqtt_port = 1883;
 
 //lights
 #define ANIMATION_REFRESH 100
+#define HEATER_PIN A4
+#define BALL_DROP_PIN 2
 #define LED_PIN_STRIP1 A5
 #define LED_PIN_STRIP2 A0
 #define LENGTH_STRIPS 30

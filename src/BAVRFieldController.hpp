@@ -58,7 +58,7 @@ private:
     uint32_t last_laser_time;
     uint32_t last_heartbeat_time =0;
     const uint32_t MAX_HEARTBEAT_WAIT =10000;
-    const uint32_t MAX_LASER_INDICATOR = 500;
+    const uint32_t MAX_LASER_INDICATOR = 200;
     uint8_t lastone = 0;
     uint8_t thisone = 0;
     bool configured = false;
@@ -67,14 +67,14 @@ private:
 const uint8_t config_types [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to zero
   {NO, NO, YES},          //RBO
   {YES, NO, NO},          //RTO
-  {YES, YES, NO},         //RBM
-  {YES, YES, NO},         //RTM
-  {NO, YES, YES},         //RBI
-  {NO, YES, YES},         //RTI
-  {NO, YES, YES},         //LBI
-  {NO, YES, YES},         //LTI
-  {YES, YES, NO},         //LBM
-  {YES, YES, NO},         //LTM
+  {YES, NO, NO},         //RBM
+  {YES, NO, NO},         //RTM
+  {NO, NO, YES},         //RBI
+  {NO, NO, YES},         //RTI
+  {NO, NO, YES},         //LBI
+  {NO, NO, YES},         //LTI
+  {YES, NO, NO},         //LBM
+  {YES, NO, NO},         //LTM
   {NO, NO, YES},         //LBO
   {YES, NO, NO},          //LTO
   {NO, NO, NO},          //LTT
