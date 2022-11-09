@@ -43,7 +43,7 @@ private:
     char node_id[128];
     StaticJsonDocument<512> json;
     char topic[256];
-    char message[512];
+    char message[1024];
     char uuid[32];
     uint8_t heater_pin;
     bool isheater_on =false;
