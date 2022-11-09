@@ -407,12 +407,13 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     }
 
     CRGB colors[] = {
+      CRGB::Black,
       CRGB::Red,
       CRGB::OrangeRed,
       CRGB::Yellow,
       CRGB::Green,
       CRGB::Blue,
-      CRGB::Purple
+      CRGB::Purple,
     };
 
     int strip_index = json["whichLeds"];
@@ -427,9 +428,9 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     for (int i=0; i<30; i++)
     {
       int dec_val = str[i] - 48; //magic conversion from ascii val to decimal
-      if (dec_val > 0 && dec_val < 7) //make sure its sane
+      if (dec_val >= 0 && dec_val < 7) //make sure its sane
       {
-        led_animations->strips[strip_index].set_pixel_color(i, colors[dec_val - 1]);
+        led_animations->strips[strip_index].set_pixel_color(i, colors[dec_val]);
       }
     }
     check_memory();
@@ -520,8 +521,10 @@ void BAVRFieldController::event_trigger(const char *event)
   if (strcmp(event, "ball") == 0)
   {
     this->ball_detect_message(1);
-    // Serial.println(F("Controller: Trough event triggered"));
-    // field_comms->message("avr-building/1/trough", String(trough_detect->bag_num())); //todo: update to match schema
+    led_animations->leds[0].set_led_state(true);
+    lastone = thisone;
+    last_laser_time = millis();
+
   }
 
     if (strcmp(event, "heartbeat") == 0)

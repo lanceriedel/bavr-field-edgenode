@@ -30,7 +30,7 @@
 #define YES ((uint8_t)1)
 #define NO ((uint8_t)0)
 
-#define NUM_BUILDINGS 12
+#define NUM_BUILDINGS 14
 #define NUM_SENSORS_TYPES 3
 
 //mqtt
