@@ -52,7 +52,7 @@ private:
     uint8_t building_name_index;
     uint32_t last_laser_time;
     uint32_t last_heartbeat_time =0;
-    const uint32_t MAX_HEARTBEAT_WAIT =30000;
+    const uint32_t MAX_HEARTBEAT_WAIT =10000;
     const uint32_t MAX_LASER_INDICATOR = 750;
     uint8_t lastone = 0;
     uint8_t thisone = 0;

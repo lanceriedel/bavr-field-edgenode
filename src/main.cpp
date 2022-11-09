@@ -32,7 +32,6 @@ IPAddress server(192, 168, 1, 112); // MQTT server
 LEDAnimations led_animations;
 
 // ball detector
-uint8_t BALL_DROP_PIN = 2;
 BallDetect ball_detect;
 
 // laser detector

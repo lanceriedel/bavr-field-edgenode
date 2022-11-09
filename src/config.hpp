@@ -6,6 +6,7 @@
 //heater
 #define HEATER_PIN A2
 #define LASER_LIGHT_PIN 41
+#define BALL_DROP_PIN 2
 
 #define RBO  ((uint8_t)0)
 #define RTO  ((uint8_t)1)
