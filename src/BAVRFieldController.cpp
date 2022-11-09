@@ -24,6 +24,14 @@ BallDetect *ball_detect)
   strcpy(node_id, "unnamed-bldg");
 }
 
+void BAVRFieldController::check_memory()
+{
+  if (freeMemory() < worst_memory)
+  {
+    worst_memory = freeMemory();
+  }
+}
+
 void BAVRFieldController::laser_hit_message(int hits)
 {
 
@@ -39,6 +47,7 @@ void BAVRFieldController::laser_hit_message(int hits)
   strcat(topic, node_id);
 
   // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
+  check_memory();
 
   field_comms->message(topic, (const char *)message);
 }
@@ -64,6 +73,7 @@ void BAVRFieldController::heartbeat_message()
   strcat(topic, node_id);
 
   // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
+  check_memory();
 
   field_comms->message(topic, (const char *)message);
 }
@@ -88,7 +98,7 @@ void BAVRFieldController::laser_last_raw_reading_message()
   strcat(topic, node_id);
 
   // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
-
+  check_memory();
   field_comms->message(topic, (const char *)message);
 }
 
@@ -108,7 +118,7 @@ void BAVRFieldController::ball_detect_message(int drops)
   strcat(topic, node_id);
 
   // Serial.print("message:"); Serial.print(buff2);Serial.print(" payload:"); Serial.println(output);
-
+  check_memory();
   field_comms->message(topic, (const char *)message);
 }
 
@@ -124,6 +134,7 @@ void BAVRFieldController::reset_match()
   this->heater_off();
   // reset laser detect light sensor?
   this->laser_detect->reset();
+  check_memory();
 }
 
 void BAVRFieldController::set_config() {
@@ -159,6 +170,7 @@ void BAVRFieldController::set_config() {
   Serial.print(F("Is Laser="));Serial.println(config_types[this->building_name_index][LASER]);
   Serial.print(F("Is BALL="));Serial.println(config_types[this->building_name_index][BALL]);
   Serial.print(F("Is TRENCH="));Serial.println(config_types[this->building_name_index][TRENCH]);
+  check_memory();
 }
 
 void BAVRFieldController::subscribe_all()
@@ -168,67 +180,46 @@ void BAVRFieldController::subscribe_all()
   strcpy(topic, "nodered/firescore/");
   strcat(topic, node_id);
   field_comms->subscribe(topic);
-  Serial.print(F("Subscribed to:"));
-  Serial.println(topic);
 
   clean_buffers();
   strcpy(topic, "nodered/laserdiff");
   field_comms->subscribe(topic);
-  Serial.print(F("Subscribed to:"));
-  Serial.println(topic);
 
   clean_buffers();
   strcpy(topic, "nodered/weighttare");
   field_comms->subscribe(topic);
-  Serial.print(F("Subscribed to:"));
-  Serial.println(topic);
-
-  clean_buffers();
-  strcpy(topic, "nodered/updatewindow/");
-  strcat(topic, node_id);
-  field_comms->subscribe(topic);
-  Serial.print(F("Subscribed to:"));
-  Serial.println(topic);
 
   clean_buffers();
   strcpy(topic, "nodered/heateron/");
   strcat(topic, node_id);
   field_comms->subscribe(topic);
-  Serial.print(F("Subscribed to:"));
-  Serial.println(topic);
 
   clean_buffers();
   strcpy(topic, "nodered/heateroff/");
   strcat(topic, node_id);
   field_comms->subscribe(topic);
-  Serial.print(F("Subscribed to:"));
-  Serial.println(topic);
-
-  clean_buffers();
-  strcpy(topic, "nodered/updategutter/bysegment/");
-  strcat(topic, node_id);
-  field_comms->subscribe(topic);
-  Serial.print(F("Subscribed to:"));
-  Serial.println(topic);
-
-  clean_buffers();
-  strcpy(topic, "nodered/updategutter/orderedsegments/");
-  strcat(topic, node_id);
-  field_comms->subscribe(topic);
-  Serial.print(F("Subscribed to:"));
-  Serial.println(topic);
-
-  clean_buffers();
-  strcpy(topic, "nodered/updategutter/full/");
-  strcat(topic, node_id);
-  field_comms->subscribe(topic);
-  Serial.print(F("Subscribed to:"));
-  Serial.println(topic);
 
   // subscribe to nodered/reset/match
   clean_buffers();
   strcpy(topic, "nodered/reset/match");
   field_comms->subscribe(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/updatepixels/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/lightoff/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/lighton/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+
+  check_memory();
 }
 
 void BAVRFieldController::reset_all()
@@ -249,6 +240,7 @@ void BAVRFieldController::heater_on()
   Serial.println(HEATER_PIN);
   digitalWrite(HEATER_PIN,HIGH);
   isheater_on = true;
+  check_memory();
 }
 
 void BAVRFieldController::heater_off()
@@ -260,6 +252,7 @@ void BAVRFieldController::heater_off()
   }
   isheater_on = false;
   digitalWrite(HEATER_PIN,LOW);
+  check_memory();
 }
 
 void BAVRFieldController::interrupt(int pin)
@@ -291,14 +284,17 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
   {
     strncpy(message, (const char *)payload, length);
     message[length] = 0;
+    // Serial.print(F("GOT A MESSAGE TO PARSE on: "));
+    // Serial.println(topic);
+    check_memory();
   }
 
   //Keeping this for now -- it was still getting messages for all nodes, even though subscribed to its uuid
 
-  char uuid_initialization_topic[64];
-  memset(uuid_initialization_topic, 0, sizeof(topic));
-  strcpy(uuid_initialization_topic, "nodered/initialization/");
-  strcat(uuid_initialization_topic, uuid);
+  // char uuid_initialization_topic[64];
+  // memset(uuid_initialization_topic, 0, sizeof(topic));
+  // strcpy(uuid_initialization_topic, "nodered/initialization/");
+  // strcat(uuid_initialization_topic, uuid);
 
 
   if (prefix("nodered/firescore/", topic))
@@ -318,6 +314,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     Serial.println(newfirescore);
     current_fire_score = newfirescore;
     valid_message = true;
+    check_memory();
   }
 
   else if (prefix("nodered/reset/match", topic))
@@ -328,48 +325,116 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     // now that we know who we are, subscribe to our nodeid
     reset_all();
     valid_message = true;
+    check_memory();
   }
   else if (prefix("nodered/heateron/",topic))
   {
     heater_on();
     valid_message = true;
-
+    check_memory();
   }
 
   else if (prefix("nodered/heateroff/",topic))
   {
     heater_off();
     valid_message = true;
-
+    check_memory();
   }
 
-  //else if (prefix("nodered/initialization/",topic))   //NOTE -- This is still getting all node ids!
-  else if (prefix(uuid_initialization_topic,topic))
+  else if (prefix("nodered/initialization/",topic))   //NOTE -- This is still getting all node ids!
+  //else if (prefix(uuid_initialization_topic,topic))
   {
-    Serial.println(F("I'm in the else-if-prefix"));
-    Serial.print(F("The topic is "));
-    Serial.println(topic);
-    Serial.print(F("Currently, my node is "));
-    Serial.println(node_id);
-    Serial.print(F("The MQTT message is "));
-    Serial.println(message);
-    memset(node_id, 0, 128);
-    strcpy(node_id, message); // TODO - this should probably be dersialized as json object vs a raw string
-    Serial.print(F("Node id initialized: "));
-    Serial.println(node_id);
-    // now that we know who we are, subscribe to our nodeid
-    set_config();
-    configured = true;
+    if (!configured)
+    {
+      Serial.println(F("I'm in the else-if-prefix"));
+      Serial.print(F("The topic is "));
+      Serial.println(topic);
+      Serial.print(F("Currently, my node is "));
+      Serial.println(node_id);
+      Serial.print(F("The MQTT message is "));
+      Serial.println(message);
+      memset(node_id, 0, 128);
+      strcpy(node_id, message); // TODO - this should probably be dersialized as json object vs a raw string
+      Serial.print(F("Node id initialized: "));
+      Serial.println(node_id);
+      // now that we know who we are, subscribe to our nodeid
+      set_config();
+      configured = true;
+    }
+
     valid_message = true;
+    check_memory();
   }
 
   else if (prefix("nodered/reset/match", topic))
   {
     reset_match();
     valid_message = true;
+    check_memory();
   }
 
-  else if (prefix("nodered/updatewindow/", topic))
+  // else if (prefix("nodered/updatewindow/", topic))
+  // {
+  //   DeserializationError error = deserializeJson(json, message);
+  //   // Test if parsing succeeds.
+  //   if (error)
+  //   {
+  //     Serial.print(F("deserializeJson() failed: "));
+  //     Serial.println(error.f_str());
+  //     return;
+  //   }
+  //   if (json.containsKey("side_id") && json.containsKey("activeWindows"))
+  //   {
+  //     int side = json["side_id"];
+  //     int activeWindows = json["activeWindows"];
+  //     //led_animations->building.set_active_windows(side, activeWindows);
+  //     int damagedWindows = json["damagedWindows"];
+  //     //led_animations->building.set_damaged_windows(side, damagedWindows);
+  //   }
+  //   valid_message = true;
+  // }
+
+  else if (prefix("nodered/updatepixels/", topic))
+  {
+
+    DeserializationError error = deserializeJson(json, message);
+    // Test if parsing succeeds.
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
+    }
+
+    CRGB colors[] = {
+      CRGB::Red,
+      CRGB::OrangeRed,
+      CRGB::Yellow,
+      CRGB::Green,
+      CRGB::Blue,
+      CRGB::Purple
+    };
+
+    int strip_index = json["whichLeds"];
+    const char* str = json["pixels"];
+
+    // okay listen.. this function is very dangerous...
+    // it just blindly expects that there WILL be 30 characters in the
+    // pixels key of the json object and if there isnt, well then..
+    // we are going to violate some memory safety rules.
+    Serial.println(F("ABOUT TO UPDATE PIXELS"));
+    for (int i=0; i<30; i++)
+    {
+      int dec_val = str[i] - 48; //magic conversion from ascii val to decimal
+      if (dec_val > 0 && dec_val < 7) //make sure its sane
+      {
+        led_animations->strips[strip_index].set_pixel_color(i, colors[dec_val - 1]);
+      }
+    }
+    check_memory();
+  }
+
+  else if (prefix("nodered/lighton/", topic))
   {
     DeserializationError error = deserializeJson(json, message);
     // Test if parsing succeeds.
@@ -379,15 +444,25 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
       Serial.println(error.f_str());
       return;
     }
-    if (json.containsKey("side_id") && json.containsKey("activeWindows"))
+
+    int led_index = json["whichLight"];
+    led_animations->leds[led_index].set_led_state(true);
+    check_memory();
+  }
+
+  else if (prefix("nodered/lightoff/", topic))
+  {
+    DeserializationError error = deserializeJson(json, message);
+    // Test if parsing succeeds.
+    if (error)
     {
-      int side = json["side_id"];
-      int activeWindows = json["activeWindows"];
-      led_animations->building.set_active_windows(side, activeWindows);
-      int damagedWindows = json["damagedWindows"];
-      led_animations->building.set_damaged_windows(side, damagedWindows);
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      return;
     }
-    valid_message = true;
+    int led_index = json["whichLight"];
+    led_animations->leds[led_index].set_led_state(false);
+    check_memory();
   }
 
   else if (prefix("nodered/laserdiff", topic))
@@ -405,73 +480,11 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     int newdiff = json["DETECTOR_DIFF"];
     Serial.println(F("DETECTOR_DIFF:"));
     Serial.println(newdiff);
-    
+
     laser_detect->set_diff(newdiff);
     laser_last_raw_reading_message();
     valid_message = true;
-  }
-
-
-  else if (prefix("nodered/updategutter/bysegment/", topic))
-  {
-    DeserializationError error = deserializeJson(json, message);
-    // Test if parsing succeeds.
-    if (error)
-    {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      return;
-    }
-    if (json.containsKey("segment_id") && json.containsKey("color"))
-    {
-      int segment = json["segment_id"];
-      long color_int = strtol(json["color"], 0, 16);
-      CRGB color(color_int);
-      led_animations->building.set_gutter_segment(segment, color);
-    }
-    valid_message = true;
-  }
-
-  else if (prefix("nodered/updategutter/orderedsegments/", topic))
-  {
-    DeserializationError error = deserializeJson(json, message);
-    // Test if parsing succeeds.
-    if (error)
-    {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      return;
-    }
-    if (json.containsKey("num_segments") && json.containsKey("color"))
-    {
-      int segments = json["num_segments"];
-      long color_int = strtol(json["color"], 0, 16);
-      CRGB color(color_int);
-      led_animations->building.set_gutter_progress(segments, color);
-    }
-    valid_message = true;
-  }
-
-  else if (prefix("nodered/updategutter/full/", topic))
-  {
-    DeserializationError error = deserializeJson(json, message);
-    // Test if parsing succeeds.
-    if (error)
-    {
-      Serial.print(F("deserializeJson() failed: "));
-      Serial.println(error.f_str());
-      return;
-    }
-
-    if (json.containsKey("color"))
-    {
-      Serial.println(F("Json has a color"));
-      long color_int = strtol(json["color"],0, 16L);
-      Serial.println(color_int, 16);
-      CRGB color(color_int);
-      led_animations->building.set_gutter_full(color);
-    }
-    valid_message = true;
+    check_memory();
   }
 
   if (valid_message) {
@@ -515,6 +528,7 @@ void BAVRFieldController::event_trigger(const char *event)
     // Serial.println(F("Controller: Trough event triggered"));
     // field_comms->message("avr-building/1/trough", String(trough_detect->bag_num())); //todo: update to match schema
   }
+  check_memory();
 }
 
 /// Everybody do a loop   -- make sure no one is hogging the one thread please!!
@@ -557,6 +571,7 @@ void BAVRFieldController::loop()
       last_heartbeat_time = currentms;
       event_trigger("heartbeat");
   }
+  check_memory();
 }
 
 boolean BAVRFieldController::setup(const char *unique_id)

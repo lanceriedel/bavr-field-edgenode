@@ -34,6 +34,18 @@
 #define NUM_BUILDINGS 12
 #define NUM_SENSORS_TYPES 3
 
+//mqtt
+static const int mqtt_server[] = {192,168,1,112};
+static const int mqtt_port = 1883;
 
+//lights
+#define ANIMATION_REFRESH 100
+#define LED_PIN_STRIP1 A5
+#define LED_PIN_STRIP2 A0
+#define LENGTH_STRIPS 30
+
+#define LED_PIN_MOS1 A4
+#define LED_PIN_MOS2 6
+#define LED_PIN_MOS3 7
 
 #endif
