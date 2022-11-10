@@ -18,6 +18,8 @@
 #define LTM  ((uint8_t)9)
 #define LBO  ((uint8_t)10)
 #define LTO  ((uint8_t)11)
+#define LTT  ((uint8_t)12)
+#define RTT  ((uint8_t)13)
 
 #define UNDEFINED_BLDG ((uint8_t)32)
 

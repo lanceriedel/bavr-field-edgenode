@@ -164,6 +164,10 @@ void BAVRFieldController::set_config() {
     this->building_name_index = (uint8_t)LBO;
   if (strcmp(node_id, "LTO") == 0)
     this->building_name_index = (uint8_t)LTO;
+      if (strcmp(node_id, "LTT") == 0)
+    this->building_name_index = (uint8_t)LTT;
+      if (strcmp(node_id, "RTT") == 0)
+    this->building_name_index = (uint8_t)RTT;
 
   
   Serial.print(F("building_name_index="));Serial.println(this->building_name_index);
@@ -219,12 +223,23 @@ void BAVRFieldController::subscribe_all()
   strcat(topic, node_id);
   field_comms->subscribe(topic);
 
+  clean_buffers();
+  strcpy(topic, "nodered/laserrecalibrate/");
+  strcat(topic, node_id);
+  field_comms->subscribe(topic);
+
+  clean_buffers();
+  strcpy(topic, "nodered/reset/laserdetector");
+  field_comms->subscribe(topic);
+
   check_memory();
 }
 
 void BAVRFieldController::reset_all()
 {
   // ball_detect.reset();
+  heater_off();
+  
 
   // Subscribe to all messages for this
 }
@@ -327,6 +342,7 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     valid_message = true;
     check_memory();
   }
+
   else if (prefix("nodered/heateron/",topic))
   {
     heater_on();
@@ -464,6 +480,23 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     }
     int led_index = json["whichLight"];
     led_animations->leds[led_index].set_led_state(false);
+    check_memory();
+  }
+
+  else if (prefix("nodered/laserrecalibrate/", topic))
+  {
+    laser_detect->calibrate();
+    valid_message = true;
+    laser_last_raw_reading_message();
+    check_memory();
+  }
+
+  //Global version of above
+  else if (prefix("nodered/reset/laserdetector", topic))
+  {
+    laser_detect->calibrate();
+    valid_message = true;
+    laser_last_raw_reading_message();
     check_memory();
   }
 

@@ -12,6 +12,7 @@ LaserDetect::LaserDetect()
 void LaserDetect::reset() {
   calibrate();
 }
+
 void LaserDetect::calibrate() {
   total_k = 0;
   total_r = 0;
