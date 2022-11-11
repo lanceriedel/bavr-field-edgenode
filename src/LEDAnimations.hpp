@@ -43,7 +43,7 @@ public:
     LEDAnimations();
 
     LED leds[3];
-    LEDStrip strips[2];
+    LEDStrip strips[4];
 
     void setup();
 

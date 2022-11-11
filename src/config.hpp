@@ -41,12 +41,15 @@ static const int mqtt_port = 1883;
 #define ANIMATION_REFRESH 100
 #define HEATER_PIN A4
 #define BALL_DROP_PIN 2
-#define LED_PIN_STRIP1 A5
-#define LED_PIN_STRIP2 A0
+#define LED_PIN_STRIP0 A5
+#define LED_PIN_STRIP1 A0
+#define LED_PIN_STRIP2 39
+#define LED_PIN_STRIP3 41
+
 #define LENGTH_STRIPS 30
 
-#define LED_PIN_MOS1 A1
-#define LED_PIN_MOS2 A2
-#define LED_PIN_MOS3 A3
+#define LED_PIN_MOS0 A1
+#define LED_PIN_MOS1 A2
+#define LED_PIN_MOS2 A3
 
 #endif

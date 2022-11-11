@@ -550,7 +550,7 @@ void BAVRFieldController::event_trigger(const char *event)
     lastone = thisone;
     last_laser_time = millis();
   }
-  
+
   if (strcmp(event, "ball") == 0)
   {
     this->ball_detect_message(1);

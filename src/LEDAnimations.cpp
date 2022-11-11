@@ -93,20 +93,27 @@ LEDAnimations::LEDAnimations()
 
 void LEDAnimations::setup()
 {
-    leds[0] = LED(LED_PIN_MOS1);
-    leds[1] = LED(LED_PIN_MOS2);
-    leds[2] = LED(LED_PIN_MOS3);
+    leds[0] = LED(LED_PIN_MOS0);
+    leds[1] = LED(LED_PIN_MOS1);
+    leds[2] = LED(LED_PIN_MOS2);
+
+    pinMode(LED_PIN_MOS0,OUTPUT);
     pinMode(LED_PIN_MOS1,OUTPUT);
     pinMode(LED_PIN_MOS2,OUTPUT);
-    pinMode(LED_PIN_MOS3,OUTPUT);
 
+    pinMode(LED_PIN_STRIP0,OUTPUT);
     pinMode(LED_PIN_STRIP1,OUTPUT);
     pinMode(LED_PIN_STRIP2,OUTPUT);
+    pinMode(LED_PIN_STRIP3,OUTPUT);
 
     strips[0] = LEDStrip();
-    FastLED.addLeds<WS2812, LED_PIN_STRIP1, RGB>(&strips[0].pixels[0], strips[0].length());
+    FastLED.addLeds<WS2812, LED_PIN_STRIP0, GRB>(&strips[0].pixels[0], strips[0].length());
     strips[1] = LEDStrip();
-    FastLED.addLeds<WS2812, LED_PIN_STRIP2, RGB>(&strips[1].pixels[0], strips[1].length());
+    FastLED.addLeds<WS2812, LED_PIN_STRIP1, GRB>(&strips[1].pixels[0], strips[1].length());
+    strips[2] = LEDStrip();
+    FastLED.addLeds<WS2812, LED_PIN_STRIP2, GRB>(&strips[2].pixels[0], strips[2].length());
+    strips[3] = LEDStrip();
+    FastLED.addLeds<WS2812, LED_PIN_STRIP3, GRB>(&strips[3].pixels[0], strips[3].length());
 
 }
 
@@ -123,14 +130,19 @@ void LEDAnimations::loop()
 void LEDAnimations::draw()
 {
     FastLED.show();
-    digitalWrite(leds[0].pin, leds[0].get_val());
-    digitalWrite(leds[1].pin, leds[1].get_val());
-    digitalWrite(leds[2].pin, leds[2].get_val());
+    uint8_t len_leds = sizeof(leds)/sizeof(leds[0]);
+    for (int i=0; i<len_leds; i++)
+    {
+        digitalWrite(leds[i].pin, leds[i].get_val());
+    }
 }
 
 void LEDAnimations::boot_sequence(uint8_t progress)
 {
-    strips[0].set_progress(progress*3, CRGB::Blue);
-    strips[1].set_progress(progress*3, CRGB::Blue);
+    uint8_t length_strips = sizeof(strips)/sizeof(strips[0]);
+    for (int i=0; i<length_strips; i++)
+    {
+        strips[i].set_progress(progress*3, CRGB::Blue);
+    }
     draw();
 }
