@@ -15,8 +15,8 @@ public:
     void set_diff(uint16_t diff);
     uint16_t get_lastest_readings();
     uint32_t get_lastest_avgk();
-    uint32_t get_latest_diff();
-    uint32_t get_latest_triggered_diff();
+    int32_t get_latest_diff();
+    int32_t get_latest_triggered_diff();
 
    // int8_t triggered();
 
@@ -32,9 +32,9 @@ private:
 
     uint32_t avg_r=0;
 
-    int32_t MAX_TEMP_DIFF=400;
-    uint32_t last_diff;
-    uint32_t last_triggered_diff;
+    int32_t MAX_TEMP_DIFF=-500;
+    int32_t last_diff;
+    int32_t last_triggered_diff;
 
     uint8_t hastriggered = -1;
     int MAX_WAIT =500;

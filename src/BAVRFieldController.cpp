@@ -513,6 +513,8 @@ void BAVRFieldController::callback(char *topic, byte *payload, unsigned int leng
     }
 
     int newdiff = json["DETECTOR_DIFF"];
+    //should always be -, so fix if messed up
+    if (newdiff>=0) newdiff = newdiff *-1;
     Serial.println(F("DETECTOR_DIFF:"));
     Serial.println(newdiff);
 
