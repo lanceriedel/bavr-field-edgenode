@@ -107,13 +107,13 @@ void LEDAnimations::setup()
     pinMode(LED_PIN_STRIP3,OUTPUT);
 
     strips[0] = LEDStrip();
-    FastLED.addLeds<WS2812, LED_PIN_STRIP0, GRB>(&strips[0].pixels[0], strips[0].length());
+    FastLED.addLeds<WS2812, LED_PIN_STRIP0, RGB>(&strips[0].pixels[0], strips[0].length());
     strips[1] = LEDStrip();
-    FastLED.addLeds<WS2812, LED_PIN_STRIP1, GRB>(&strips[1].pixels[0], strips[1].length());
+    FastLED.addLeds<WS2812, LED_PIN_STRIP1, RGB>(&strips[1].pixels[0], strips[1].length());
     strips[2] = LEDStrip();
-    FastLED.addLeds<WS2812, LED_PIN_STRIP2, GRB>(&strips[2].pixels[0], strips[2].length());
+    FastLED.addLeds<WS2812, LED_PIN_STRIP2, RGB>(&strips[2].pixels[0], strips[2].length());
     strips[3] = LEDStrip();
-    FastLED.addLeds<WS2812, LED_PIN_STRIP3, GRB>(&strips[3].pixels[0], strips[3].length());
+    FastLED.addLeds<WS2812, LED_PIN_STRIP3, RGB>(&strips[3].pixels[0], strips[3].length());
 
 }
 
