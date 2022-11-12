@@ -75,8 +75,8 @@ const uint8_t config_types [NUM_BUILDINGS] [NUM_SENSORS_TYPES] { //initialize to
   {NO, NO, YES},         //LTI
   {YES, NO, NO},         //LBM
   {YES, NO, NO},         //LTM
-  {NO, NO, YES},         //LBO
-  {YES, NO, NO},          //LTO
+  {YES, NO, NO},         //LBO
+  {NO, NO, YES},          //LTO
   {NO, NO, NO},          //LTT
   {NO, NO, NO},          //RTT
 };
